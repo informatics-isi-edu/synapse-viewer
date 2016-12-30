@@ -105,7 +105,6 @@ function getDataWithTrackList(tlist,myColor) {
    var nlist=[];
    var cnt=Object.keys(tlist).length;
    for(var i=0;i<cnt; i++) {
-window.console.log("-->",tlist[i]);
      if(tlist[i]) {
        dlist.push(initPlot_data[i]);
        clist.push(getColor(i));

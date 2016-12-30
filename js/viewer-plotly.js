@@ -148,7 +148,7 @@ function getScatter3DDefaultLayout(xkey,ykey,zkey,xrange,yrange,zrange){
         zaxis: tmpz
       }
       };
-window.console.log(p);
+//window.console.log(p);
   return p;
 }
 

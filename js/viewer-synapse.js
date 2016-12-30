@@ -36,7 +36,7 @@ function processArgs(args) {
             {
              var tmp=kvp[1].replace(new RegExp('/$'),'').trim();
              urls.push(tmp);
-window.console.log("found..",tmp);
+//window.console.log("found..",tmp);
              break;
              }
           case 'core':

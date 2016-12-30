@@ -88,7 +88,6 @@ function setupDataList2Plots(dlist) {
      for(var j=0; j<dlist.length; j++) {
        tmp[j]=true;
      }
-     window.console.log(tmp);
      trackingData[i]=tmp;
    }
 }
@@ -136,11 +135,11 @@ function isEmpty(obj) {
 */
 function removePlot(plot_idx) {
   trackingPlot[plot_idx]=false;
-  window.console.log("P->",trackingPlot[plot_idx]);
+//  window.console.log("P->",trackingPlot[plot_idx]);
 }
 function enablePlot(plot_idx) {
   trackingPlot[plot_idx]=true;
-  window.console.log("P->",trackingPlot[plot_idx]);
+//  window.console.log("P->",trackingPlot[plot_idx]);
 }
 
 function togglePlot(plot_idx, plot_label) {
@@ -161,14 +160,14 @@ id="eye_segment1_0"
 */
 function removeData(plot_idx,data_idx) {
   trackingData[plot_idx][data_idx]=false;
-  window.console.log("D->",trackingData[plot_idx]);
+//  window.console.log("D->",trackingData[plot_idx]);
   var tlist=getDataListForPlot(plot_idx);
   updatePlot(plot_idx,tlist,savePlotP);
 
 }
 function enableData(plot_idx,data_idx) {
   trackingData[plot_idx][data_idx]=true;
-  window.console.log("D->",trackingData[plot_idx]);
+//  window.console.log("D->",trackingData[plot_idx]);
   var tlist=getDataListForPlot(plot_idx);
   updatePlot(plot_idx,tlist,savePlotP);
 }

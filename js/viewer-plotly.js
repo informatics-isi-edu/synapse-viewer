@@ -139,7 +139,7 @@ function getScatter3DDefaultLayout(xkey,ykey,zkey,xrange,yrange,zrange){
       width: 800,
       height: 700,
       autosize: false,
-      paper_bgcolor: '#f9f9f9',
+      paper_bgcolor: '#eaeaea',
       showlegend: false,
       hovermode: 'closest',
       scene: {

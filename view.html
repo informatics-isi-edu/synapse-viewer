@@ -33,11 +33,18 @@
 <script type='text/javascript' src='js/viewer.js'></script>
 
 </head>
-<body style="background-color:#f9f9f9">
-<div id='viewerBlock' class="viewer-block col-md-12" style="float:right">
-   <div id='myViewer'></div>
+<body>
+<div class="container-fluid">
+<div class="row col-md-1">
+  <button id="plots-button" type="button" class="row btn-sm" style="background-color:#eaeaea;border:none;" onclick="plotsClick()">
+
+    <span class="glyphicon glyphicon-chevron-right"></span>
+  </button>
+</div> 
+<div id='viewerBlock' class="row col-md-10">
+   <div id='myViewer' style="float:right"></div>
 </div>
-<div id="controlBlock" class="row col-md-3" style="opacity:0.95;position:absolute;top:0" >
+<div id="controlBlock" class="row col-md-3" style="opacity:0.95;position:absolute;top:0;left:0;" >
 <ul id="sidebar" class="navigation" style="display:none">
   <li id='plots' class='navigationLi col-md-12' style="background-color:#f9f9f9">
     <div id='plotsMenu' class='menu'>
@@ -49,10 +56,6 @@
   </li>
 </ul>
 </div> <!-- controlBlock -->
-<div>
-  <button id="plots-button" type="button" class="btn-sm" style="position:absolute; top:0; background-color:white; border:none;" onclick="plotsClick()">
-    <span class="glyphicon glyphicon-chevron-right"></span>
-  </button>
-</div> 
+</div> <!-- container-fluid -->
 </body>
 </html>

@@ -15,12 +15,12 @@ function plotsClick() {
 //setTrackingPropertyList();
     //hide button
     var btn = document.getElementById('plots-button');
-    btn.style.display = 'none';
+    btn.style.opacity = 0;
     } else {
       sidebar_plots_slideIn();
 //savePropertyList();
       var btn = document.getElementById('plots-button');
-      btn.style.display = '';
+      btn.style.opacity = 1;
   }
 }
 
@@ -31,6 +31,7 @@ function sidebar_plots_slideOut() {
   }
   var panelptr=$('#plots');
   var sidebarptr=$('#sidebar');
+  panelptr.css("display","");
   sidebarptr.css("display","");
   panelptr.removeClass('fade-out').addClass('fade-in');
 }
@@ -41,6 +42,7 @@ function sidebar_plots_slideIn() {
   }
   var panelptr=$('#plots');
   panelptr.removeClass('fade-in').addClass('fade-out');
+  panelptr.css("display","none");
 }
 
 function sidebar_plots_slideOut2() {

@@ -11,14 +11,26 @@
 //
 
 //  type: "threeD"
+//  type: "subplots"
 
-var  savePlotP=null; // tracking what plot type is currently being viewed
-var  initPlot_plot=null; // very first plot type
 var  initPlot_data=[]; // very first set of original data
 var  initPlot_name; // original file stubs of the data files
 var  saveFirst=true;
 
-var myColor=['green','red','blue','orange','yellow'];
+var  scatterDivname="#myViewer_scatter";
+var  subplotsDivname="#myViewer_subplots";
+
+
+/*
+#DF0F0F    red (0.847, 0.057, 0.057)
+#868600    yellow (0.527, 0.527, 0)
+#009600    green (0, 0.592, 0)
+#008E8E    cyan (0, 0.559, 0.559)
+#5050FC    blue (0.316, 0.316, 0.991)
+#B700B7    magenta (0.718, 0, 0.718)
+*/
+
+var myColor=['#DF0F0F','#868600','#009600','#5050FC', '#B700B7','#008E8E'];
 // should be a very small file and used for testing and so can ignore
 // >>Synchronous XMLHttpRequest on the main thread is deprecated
 // >>because of its detrimental effects to the end user's experience.
@@ -70,25 +82,17 @@ jQuery(document).ready(function() {
 window.onresize=function() {
    if(enableEmbedded) {
      if(saveFirst) {
-       reset2InitPlot();
+       displayInitPlot();
        saveFirst=false;
      }
    }
 }
 
-// initial plot to display 3d 
-// uses all the data
+// initial plot to display,
+// The first one, 3d and uses all the data
 function displayInitPlot() {
-  savePlotP='threeD';
   var plot_idx=0;
-  var tlist=getDataListForPlot(0);
-  updatePlot(plot_idx,tlist,savePlotP);
-}
-
-// initial plot to display
-function reset2InitPlot() {
-  savePlotP=initPlot_plot;
-  displayInitPlot();
+  updatePlot(plot_idx);
 }
 
 // just in case myColor is too little
@@ -114,17 +118,26 @@ function getDataWithTrackList(tlist,myColor) {
    return [dlist, clist, nlist];
 }
 
-function updatePlot(plot_idx,tlist,plotP) {
-  $('#myViewer').empty();
-  savePlotP=plotP;
-  switch (plotP) {
-    case 'threeD' :
+
+function updatePlot(plot_idx) {
+  var tlist=getDataListForPlot(plot_idx);
+  var ptype=getPlotType(plot_idx);
+  switch (ptype) {
+    case '3D scatter' :
+      $(scatterDivname).empty();
       var tmp=getDataWithTrackList(tlist,myColor); 
       var dlist=tmp[0];
       var clist=tmp[1];
       var nlist=tmp[2];
-//      addThreeD_one(nlist[0], dlist[0],'X','Y','Z', clist[0]);
-      addThreeD(nlist, dlist,'X','Y','Z', clist);
+      addThreeD(plot_idx,nlist, dlist,'X','Y','Z', clist);
+      break;
+    case 'Subplots' :
+      $(subplotsDivname).empty();
+      var tmp=getDataWithTrackList(tlist,myColor); 
+      var dlist=tmp[0];
+      var clist=tmp[1];
+      var nlist=tmp[2];
+      addSubplots(plot_idx, nlist, dlist,'X','Y','Z', clist);
       break;
   }
 }

@@ -6,15 +6,15 @@
 
 <link href="css/alertify.core.css" rel="stylesheet">
 <link href="css/alertify.default.css" rel="stylesheet">
-<script type="text/javascript" src="js/alertify.min.js"> </script>
+<script type="text/javascript" src="js/alertify.min.js"></script>
 
 <link href="css/jquery-ui.min.css" rel="stylesheet">
-<script type="text/javascript" src="js/jquery.js"> </script>
+<script type="text/javascript" src="js/jquery.js"></script>
 <script type='text/javascript' src='js/jquery-ui.min.js'></script>
 <script type='text/javascript' src='js/jquery.ui.slider.js'></script>
 <script type='text/javascript' src='js/jquery.csv.js'></script>
 
-<script type="text/javascript" src="js/debug.js"> </script>
+<script type="text/javascript" src="js/debug.js"></script>
 
 <link href="css/vendor/bootstrap.min.css" rel="stylesheet">
 <link href="css/vendor/bootstrap-theme.min.css" rel="stylesheet">
@@ -37,25 +37,25 @@
 <div class="container-fluid">
 <div class="row col-md-1">
   <button id="plots-button" type="button" class="row btn-sm" style="background-color:#eaeaea;border:none;" onclick="plotsClick()">
-
     <span class="glyphicon glyphicon-chevron-right"></span>
   </button>
 </div> 
 <div id='viewerBlock' class="row col-md-10">
-   <div id='myViewer' style="float:right"></div>
+  <div id='myViewer_scatter' style="float:right"></div>
+  <div id='myViewer_subplots' style="float:right"></div>
 </div>
-<div id="controlBlock" class="row col-md-3" style="opacity:0.95;position:absolute;top:0;left:0;" >
+<div id="controlBlock" class="row col-md-3" style="opacity:0.95;position:absolute;top:0;left:0;">
 <ul id="sidebar" class="navigation" style="display:none">
   <li id='plots' class='navigationLi col-md-12' style="background-color:#f9f9f9">
     <div id='plotsMenu' class='menu'>
       <div id='plotLabel' class='menuLabel' style="font-size:14px;font-weight:bold">PLOT(s)<button class="pull-right" title="dismiss" onclick="dissmissPlots()" style="border:none;background-color:transparent"><span class="glyphicon glyphicon-remove"></span>
 </button>
       </div>
-      <div id='plotList' class='panel-group' style="background-color:transparent"> </div>
+      <div id='plotList' class='panel-group' style="background-color:transparent"></div>
     </div>
   </li>
 </ul>
-</div> <!-- controlBlock -->
-</div> <!-- container-fluid -->
+</div><!-- controlBlock -->
+</div><!-- container-fluid -->
 </body>
 </html>

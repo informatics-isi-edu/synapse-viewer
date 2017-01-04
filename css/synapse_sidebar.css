@@ -4,13 +4,6 @@
        background-color: orange;
 }
 
-/*
-.tabbox {
-	width: 200px;
-	height: 30%;
-}
-*/
-
 #plotsTabs {
 	width: 200px;
 	height: 30%;
@@ -58,19 +51,6 @@
   -khtml-border-top-right-radius: 2px;	
 }
 
-
-/*
-.navigation-bottomleft {
-        background-color: #ccc;
-        opacity: 0.8;
-	position: fixed;
-	padding: 0px;
-        bottom: 0px;
-	left: 0px;
-	list-style: none;
-	z-index: 9999;
-}
-*/
 
 .navigation {
         background-color: #f9f9f9;

@@ -129,7 +129,16 @@ function loadAndProcessCSVfromFiles(urls) {
       var csv=ckExist(url);
       $.csv.toObjects(csv, {}, function(err, data) {
 //        for(var i=0, len=data.length; i<len; i++) { console.log(data[i]); }
+        // check for the first row, which has funny data..
+        // X="(core, vincinity, zerolvl, toplvl, transp):"
+        // Y="parameters"
+        // Z="saved"
+        if(data[0]['Z'] == "saved") {
+window.console.log("found a comment line..");
+          data.splice(0,1);
+        }
         initPlot_data.push(data);
+     
       });
       var fstub=chopForStub(url);
       nlist.push(fstub);

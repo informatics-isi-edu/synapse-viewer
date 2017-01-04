@@ -1,6 +1,7 @@
 //
 // synapse-viewer
 //
+var savePlot=[];
 
 function addAPlot(divname, data, layout, w, h) {
   var d3 = Plotly.d3;
@@ -17,10 +18,10 @@ function addAPlot(divname, data, layout, w, h) {
   return gd;
 }
 
-function rangeOfScatter(oldPlot) {
-    var oldDiv=oldPlot;
-    var a=oldDiv.layout.xaxis.range;
-    var b=oldDiv.layout.yaxis.range;
+function rangeOfScatter(aPlot) {
+    var aDiv=aPlot;
+    var a=aDiv.layout.xaxis.range;
+    var b=aDiv.layout.yaxis.range;
     return [a,b];
 }
 
@@ -39,6 +40,8 @@ function rangeItByValue(data, key,min,max) {
     return _new;
 }
 
+// get min max ranges of x/y/z axis
+// of all the data files
 function getMinMax(datalist) {
   var tmp;
   var tmax;
@@ -72,43 +75,95 @@ function getMinMax(datalist) {
   return [[_minX,_maxX], [_minY,_maxY], [_minZ,_maxZ]]; 
 }
 
-function addThreeD_one(title, data, keyX,keyY,keyZ, color) {
-  var _one= getScatter3DAt_one(title, data, keyX, keyY, keyZ, color);
-  var _data= [ _one ];
-  var tmp=_data[0]['x'];
+// get min max of a plotly data
+function getMinMaxOfPlotlyData(pdata) {
+  var tmp=pdata['x'];
   var _max=Math.max.apply(Math,tmp);
   var _min=Math.min.apply(Math,tmp);
   var xrange=[_min,_max];
-  tmp=_data[0]['y'];
+  tmp=pdata['y'];
   _max=Math.max.apply(Math,tmp);
   _min=Math.min.apply(Math,tmp);
   var yrange=[_min,_max];
-  tmp=_data[0]['z'];
+  tmp=pdata['z'];
   _max=Math.max.apply(Math,tmp);
   _min=Math.min.apply(Math,tmp);
   var zrange=[_min,_max];
-
-  var _layout=getScatter3DDefaultLayout(trimKey(keyX),trimKey(keyY),trimKey(keyZ),xrange,yrange,zrange);
-  saveScatter3DPlot=addAPlot('#myViewer',_data, _layout, 800,800);
+  return [ xrange, yrange, zrange];
 }
 
-function getScatter3DAt_one(title,data,xkey, ykey, zkey, mcolor) {
+function addThreeD_one(title, data, keyX,keyY,keyZ, color) {
+  var _one= getScatter3DAt_set(title, data, keyX, keyY, keyZ, color);
+  var ranges=getMinMaxOfPlotlyData(_one);
+  var _data= [ _one ];
+
+  var _layout=getScatter3DDefaultLayout(trimKey(keyX),trimKey(keyY),trimKey(keyZ),
+     ranges[0],ranges[1], ranges[2]);
+  var plot=addAPlot(scatterDivname,_data, _layout, 800,800);
+  savePlot.push(plot);
+  return plot;
+}
+
+function getScatter3DAt_set(title,data,xkey, ykey, zkey, mcolor) {
   var x=getOriginalDataByKey(data,xkey);
   var y=getOriginalDataByKey(data,ykey);
   var z=getOriginalDataByKey(data,zkey);
-  var data= {  "name": title,
-               "x": x,
-               "y": y,
-               "z": z,
-               "mode": "markers",
-               "marker": {
-                   "color": mcolor,
-                   "size": 4,
-                   "line": {"color": "black", "width": 1},
-                   "opacity": 0.7
+   var data= { name: title,
+               x: x,
+               y: y,
+               z: z,
+               mode: "markers",
+               marker: {
+                   color: mcolor,
+                   size: 4,
+                   line: {color: "black", width: 1},
+                   opacity: 1 
                },
-               "type":"scatter3d" };
-  return data;
+               type:"scatter3d" };
+   return data;
+}
+
+// combine all the data into a single trace before drawing it
+function getScatter3DAt_heat(title,datalist,xkey, ykey, zkey, heatkey) {
+  var cnt=datalist.length;
+  var d;
+  var x=[];
+  var y=[];
+  var z=[];
+  var mcolor=[];
+  for(var i=0; i< cnt; i++) {
+    d=datalist[i]; 
+    var xx=getOriginalDataByKey(d,xkey);
+    var yy=getOriginalDataByKey(d,ykey);
+    var zz=getOriginalDataByKey(d,zkey);
+    var mm=getOriginalDataByKey(d,heatkey);
+    x=x.concat(xx);
+    y=y.concat(yy);
+    z=z.concat(zz);
+    mcolor=mcolor.concat(mm);
+  }
+
+  var cmax=Math.max.apply(Math,mcolor);
+  var cmin=Math.min.apply(Math,mcolor);
+  var data= {  x: x,
+               y: y,
+               z: z,
+               mode: "markers",
+               marker: {
+                   color: mcolor,
+                   size: 4,
+                   line: {color: "black", width: 1},
+                   colorscale: 'Viridis',
+//                   colorscale: 'Rainbow',
+                   cmax:cmax,
+                   cmin:cmin,
+                   colorbar: {
+                          title:heatkey
+                             },
+                   opacity: 1 
+               },
+               type:"scatter3d" };
+   return data;
 }
 
 function getScatter3DDefaultLayout(xkey,ykey,zkey,xrange,yrange,zrange){
@@ -118,17 +173,17 @@ function getScatter3DDefaultLayout(xkey,ykey,zkey,xrange,yrange,zrange){
 //'#636363',
             "showline": true,
             "linecolor": 'black',
-            "linewidth": 6,
+            "linewidth": 4,
             "range": xrange };
     tmpy= { "title":ykey,
             "showline": true,
             "linecolor": 'black',
-            "linewidth": 6,
+            "linewidth": 4,
             "range": yrange };
     tmpz= { "title":zkey,
             "showline": true,
             "linecolor": 'black',
-            "linewidth": 6,
+            "linewidth": 4,
              "range": zrange };
     } else {
       tmpx= { "title":xkey };
@@ -152,14 +207,92 @@ function getScatter3DDefaultLayout(xkey,ykey,zkey,xrange,yrange,zrange){
   return p;
 }
 
-function addThreeD(namelist, datalist, keyX,keyY,keyZ, colorlist) {
+function addThreeD(plot_idx,namelist, datalist, keyX,keyY,keyZ, colorlist) {
   var _data=[];
-  for( var i=0; i<datalist.length; i++) {
-     var tmp=getScatter3DAt_one(namelist[i], datalist[i], keyX, keyY, keyZ, colorlist[i]);
+  var cnt=datalist.length;
+// special case..
+  if(useHeat(plot_idx)) {
+    var tmp=getScatter3DAt_heat(namelist, datalist, keyX, keyY, keyZ, 'raw core');
+    _data.push(tmp);
+    } else {
+    for( var i=0; i<cnt; i++) {
+       var tmp=getScatter3DAt_set(namelist[i], datalist[i], keyX, keyY, keyZ, colorlist[i]);
+       _data.push(tmp);
+    }
+  }
+
+  var _layout=getScatter3DDefaultLayout(trimKey(keyX),trimKey(keyY),trimKey(keyZ),
+              saveRangeX, saveRangeY, saveRangeZ);
+  var plot=addAPlot(scatterDivname,_data, _layout, 800,800);
+  savePlot.push(plot);
+  return plot;
+}
+
+// on/off via updating  opacity
+function offTrace(plot_idx,data_idx) {
+//  var update = { shapes : [ _s ] };
+//  Plotly.relayout(aPlot,update);
+//    oldDiv.layout.shapes[0].line.width=0;
+//    oldDiv.layout.shapes[1].line.width=0;
+//    Plotly.redraw(oldDiv);
+
+   var plot=savePlot[plot_idx];
+   var target=plot.data;
+   var popacity=target[data_idx].marker.opacity;
+   var pcolor=target[data_idx].marker.color;
+window.console.log(">>",popacity);
+window.console.log(">>",pcolor);
+window.console.log(">>", plot_idx);
+window.console.log(">>", data_idx);
+   savePlot[plot_idx].data[data_idx].marker.opacity=0;
+   Plotly.redraw(savePlot[plot_idx]);
+
+/*
+plot_ly(df,
+        type="bar",
+        x=x,
+        y=y,
+        opacity=opacity,
+        color=as.factor(x)
+)
+   Plotly.update(XXX);
+*/
+
+}
+
+function addSubplots(plot_idx,namelist, datalist, keyX,keyY,keyZ, colorlist) {
+  var _data=[];
+  var cnt=datalist.length;
+  for( var i=0; i<cnt; i++) {
+     var slabel="scene"+i;
+     var tmp=getScatter3DAt_subplot(namelist[i], datalist[i], keyX, keyY, keyZ, colorlist[i], slabel);
      _data.push(tmp);
   }
 
   var _layout=getScatter3DDefaultLayout(trimKey(keyX),trimKey(keyY),trimKey(keyZ),
               saveRangeX, saveRangeY, saveRangeZ);
-  saveScatter3DPlot=addAPlot('#myViewer',_data, _layout, 800,800);
+  var plot=addAPlot(subplotsDivname,_data, _layout, 800,800);
+  savePlot.push(plot);
+  return plot;
+}
+
+
+function getScatter3DAt_subplots(title,data,xkey, ykey, zkey, mcolor, slabel) {
+  var x=getOriginalDataByKey(data,xkey);
+  var y=getOriginalDataByKey(data,ykey);
+  var z=getOriginalDataByKey(data,zkey);
+   var data= { name: title,
+               x: x,
+               y: y,
+               z: z,
+               scene: slabel,
+               mode: "markers",
+               marker: {
+                   color: mcolor,
+                   size: 4,
+                   line: {color: "black", width: 1},
+                   opacity: 1 
+               },
+               type:"scatter3d" };
+   return data;
 }

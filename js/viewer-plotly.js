@@ -97,9 +97,11 @@ function addThreeD_one(title, data, keyX,keyY,keyZ, color) {
   var ranges=getMinMaxOfPlotlyData(_one);
   var _data= [ _one ];
 
+  var _width=1000;
+  var _height=600;
   var _layout=getScatter3DDefaultLayout(trimKey(keyX),trimKey(keyY),trimKey(keyZ),
      ranges[0],ranges[1], ranges[2]);
-  var plot=addAPlot(scatterDivname,_data, _layout, 800,800);
+  var plot=addAPlot(scatterDivname,_data, _layout, _width, _height);
   savePlot.push(plot);
   return plot;
 }
@@ -166,7 +168,7 @@ function getScatter3DAt_heat(title,datalist,xkey, ykey, zkey, heatkey) {
    return data;
 }
 
-function getScatter3DDefaultLayout(xkey,ykey,zkey,xrange,yrange,zrange){
+function getScatter3DDefaultLayout(xkey,ykey,zkey,xrange,yrange,zrange,width,height){
   var tmpx, tmpy, tmpz;
   if(xrange && yrange && zrange) {
     tmpx= { "title":xkey, 
@@ -191,9 +193,8 @@ function getScatter3DDefaultLayout(xkey,ykey,zkey,xrange,yrange,zrange){
       tmpz= { "title":zkey };
   }
   var p= {
-      width: 800,
-      height: 700,
-      autosize: false,
+      width: width, 
+      height: height,
       paper_bgcolor: '#eaeaea',
       showlegend: false,
       hovermode: 'closest',
@@ -221,9 +222,11 @@ function addThreeD(plot_idx,namelist, datalist, keyX,keyY,keyZ, colorlist) {
     }
   }
 
+  var _width=1000;
+  var _height=600;
   var _layout=getScatter3DDefaultLayout(trimKey(keyX),trimKey(keyY),trimKey(keyZ),
-              saveRangeX, saveRangeY, saveRangeZ);
-  var plot=addAPlot(scatterDivname,_data, _layout, 800,800);
+              saveRangeX, saveRangeY, saveRangeZ, _width, _height);
+  var plot=addAPlot(scatterDivname,_data, _layout, _width, _height);
   savePlot.push(plot);
   return plot;
 }
@@ -264,20 +267,23 @@ function addSubplots(plot_idx,namelist, datalist, keyX,keyY,keyZ, colorlist) {
   var _data=[];
   var cnt=datalist.length;
   for( var i=0; i<cnt; i++) {
-     var slabel="scene"+i;
-     var tmp=getScatter3DAt_subplot(namelist[i], datalist[i], keyX, keyY, keyZ, colorlist[i], slabel);
+     var sidx=i+1;
+     var slabel="scene"+sidx;
+     var tmp=getSubplotsAt(namelist[i], datalist[i], keyX, keyY, keyZ, colorlist[i], slabel);
      _data.push(tmp);
   }
 
-  var _layout=getScatter3DDefaultLayout(trimKey(keyX),trimKey(keyY),trimKey(keyZ),
-              saveRangeX, saveRangeY, saveRangeZ);
-  var plot=addAPlot(subplotsDivname,_data, _layout, 800,800);
+  var _width=1200;
+  var _height=600;
+  var _layout=getSubplotsDefaultLayout(trimKey(keyX),trimKey(keyY),trimKey(keyZ),
+              saveRangeX, saveRangeY, saveRangeZ, _width, _height);
+  var plot=addAPlot(subplotsDivname,_data, _layout, _width, _height);
   savePlot.push(plot);
   return plot;
 }
 
 
-function getScatter3DAt_subplots(title,data,xkey, ykey, zkey, mcolor, slabel) {
+function getSubplotsAt(title,data,xkey, ykey, zkey, mcolor, slabel) {
   var x=getOriginalDataByKey(data,xkey);
   var y=getOriginalDataByKey(data,ykey);
   var z=getOriginalDataByKey(data,zkey);
@@ -289,10 +295,116 @@ function getScatter3DAt_subplots(title,data,xkey, ykey, zkey, mcolor, slabel) {
                mode: "markers",
                marker: {
                    color: mcolor,
-                   size: 4,
-                   line: {color: "black", width: 1},
+                   size: 3,
+                   line: {color: "black", width: 0.5},
                    opacity: 1 
                },
                type:"scatter3d" };
    return data;
+}
+
+function getSubplotsDefaultLayout(xkey,ykey,zkey,xrange,yrange,zrange,width,height){
+  var tmpx, tmpy, tmpz;
+  if(xrange && yrange && zrange) {
+    tmpx= { "title":xkey, 
+//'#636363',
+            "showline": true,
+            "linecolor": 'black',
+            "linewidth": 2,
+            "range": xrange };
+    tmpy= { "title":ykey,
+            "showline": true,
+            "linecolor": 'black',
+            "linewidth": 2,
+            "range": yrange };
+    tmpz= { "title":zkey,
+            "showline": true,
+            "linecolor": 'black',
+            "linewidth": 2,
+             "range": zrange };
+    } else {
+      tmpx= { "title":xkey };
+      tmpy= { "title":ykey };
+      tmpz= { "title":zkey };
+  }
+  var p= {
+      width: width,
+      height: height,
+      paper_bgcolor: '#eaeaea',
+      showlegend: false,
+      hovermode: 'closest',
+    scene1: {
+        xaxis: tmpx,
+        yaxis: tmpy,
+        zaxis: tmpz,
+        domain: {
+            x: [0.0,  0.25],
+            y: [0.5, 1.0]
+        },},
+    scene2: {
+        xaxis: tmpx,
+        yaxis: tmpy,
+        zaxis: tmpz,
+        domain: {
+            x: [0.25, 0.50],
+            y: [0.5, 1.0]
+        }},
+     scene3: {
+        xaxis: tmpx,
+        yaxis: tmpy,
+        zaxis: tmpz,
+        domain: {
+            x: [0.50,  0.75],
+            y: [0.5, 1.0]
+        },},
+    scene4: {
+        xaxis: tmpx,
+        yaxis: tmpy,
+        zaxis: tmpz,
+        domain: {
+            x: [0.75, 1.0],
+            y: [0.5, 1.0]
+        },},
+    scene5: {
+        xaxis: tmpx,
+        yaxis: tmpy,
+        zaxis: tmpz,
+        domain: {
+            x: [0.0,  0.25],
+            y: [0.0, 0.5]
+        },},
+    scene5: {
+        xaxis: tmpx,
+        yaxis: tmpy,
+        zaxis: tmpz,
+        domain: {
+            x: [0.25, 0.50],
+            y: [0.0, 0.5]
+        }},
+     scene7: {
+        xaxis: tmpx,
+        yaxis: tmpy,
+        zaxis: tmpz,
+        domain: {
+            x: [0.50,  0.75],
+            y: [0.0, 0.5]
+        },},
+    scene8: {
+        xaxis: tmpx,
+        yaxis: tmpy,
+        zaxis: tmpz,
+        domain: {
+            x: [0.75, 1.0],
+            y: [0.0, 0.5]
+        },},
+    margin: {
+    l: 2,
+    r: 2,
+    b: 2,
+    t: 2,
+            pad:0,
+        },
+      };
+window.console.log(p);
+  return p;
 }

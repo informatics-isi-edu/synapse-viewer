@@ -93,6 +93,8 @@ window.onresize=function() {
 function displayInitPlot() {
   var plot_idx=0;
   updatePlot(plot_idx);
+  var plot_idx=1;
+  updatePlot(plot_idx);
 }
 
 // just in case myColor is too little

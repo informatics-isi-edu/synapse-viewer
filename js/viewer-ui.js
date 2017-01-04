@@ -78,7 +78,11 @@ function addPlot(plot_idx, pname) {
   _nn+='<div class="panel-heading">';
   _nn+='<div class="panel-title row" style="background-color:transparent;">'; 
   _nn+='<button id="'+_visible_name+'" class="pull-left"  style="display:inline-block;outline: none;border:none; background-color:white"  onClick="togglePlot('+plot_idx+',\''+_eye_name+'\')" title="hide or show plot"><span id="'+_eye_name+'" class="glyphicon glyphicon-eye-open" style="color:#337ab7;"></span> </button>';
+// XXX subplots can not have heat option yet 
+window.console.log("PNAME is ..", name);
+if(name != "Subplots") {
   _nn+='<button id="'+_heat_name+'" class="pull-left" style="margin-left: -5px;display:inline-block;outline: none;border:none; background-color:white"  onClick="togglePlotHeat('+plot_idx+',\''+_fire_name+'\')" title="toggle to heat scale"><span id="'+_fire_name+'" class="glyphicon glyphicon-fire" style="color:#337ab7;"></span> </button>';
+}
   _nn+='<a class="accordion-toggle" data-toggle="collapse" data-parent="#plotList" href="#' +_collapse_name+'" title="click to expand" >'+pname+'</a>';
   _nn+='</div> <!-- panel-title -->'; 
   _nn+='</div> <!-- panel-heading-->';
@@ -166,10 +170,18 @@ function isEmpty(obj) {
 function removePlot(plot_idx) {
   trackingPlot[plot_idx]=false;
 //  window.console.log("P->",trackingPlot[plot_idx]);
+  if(plot_idx == 0)
+    $('#myViewer_scatter').css('display','none');
+  if(plot_idx == 1)
+    $('#myViewer_subplots').css('display','none');
 }
 function enablePlot(plot_idx) {
   trackingPlot[plot_idx]=true;
 //  window.console.log("P->",trackingPlot[plot_idx]);
+  if(plot_idx == 0)
+    $('#myViewer_scatter').css('display','');
+  if(plot_idx == 1)
+    $('#myViewer_subplots').css('display','');
 }
 
 function togglePlot(plot_idx, plot_label) {

@@ -4,6 +4,7 @@
 // A flag to track whether plotly viewer is
 // being used inside another window (i.e. Chaise), set enableEmbedded.
 
+var HAS_SUBPLOTS=false;
 //   eye bars fire 'three D'
 //      eye data 
 //      eye data2
@@ -26,13 +27,18 @@ function getDataListForPlot(plot_idx) {
   return trackingData[plot_idx];
 }
 
-function setupPlotList() {
+function setupPlotList(dlist) {
+  nameOfData=dlist;
+
   nameOfPlot.push('3D scatter'); // selectable data
   trackingPlot[0]=true;
   trackingPlotHeat[0]=false;
+ 
+if(HAS_SUBPLOTS) {
   nameOfPlot.push('Subplots'); // not selectable data
   trackingPlot[1]=true;
   trackingPlotHeat[1]=false;
+}
   add2PlotList();
 }
 
@@ -62,6 +68,20 @@ function add2PlotList() {
    }
 }
 
+// if datalist is more than one
+function moreThanOneData(){
+  if(nameOfData.length > 1)
+    return true;
+  return false;
+}
+
+function moreThanOnePlot(){
+window.console.log("trackingPlot..", trackingPlot.length);
+  if(trackingPlot.length > 1)
+    return true;
+  return false;
+}
+
 // given a plot, expand the html structure
 function addPlot(plot_idx, pname) {
   var name = pname.replace(/ +/g, "");
@@ -77,20 +97,28 @@ function addPlot(plot_idx, pname) {
   _nn+='<div class="panel panel-default col-md-12">';
   _nn+='<div class="panel-heading">';
   _nn+='<div class="panel-title row" style="background-color:transparent;">'; 
+
+if(moreThanOnePlot()) {
   _nn+='<button id="'+_visible_name+'" class="pull-left"  style="display:inline-block;outline: none;border:none; background-color:white"  onClick="togglePlot('+plot_idx+',\''+_eye_name+'\')" title="hide or show plot"><span id="'+_eye_name+'" class="glyphicon glyphicon-eye-open" style="color:#337ab7;"></span> </button>';
+}
 // XXX subplots can not have heat option yet 
-window.console.log("PNAME is ..", name);
 if(name != "Subplots") {
   _nn+='<button id="'+_heat_name+'" class="pull-left" style="margin-left: -5px;display:inline-block;outline: none;border:none; background-color:white"  onClick="togglePlotHeat('+plot_idx+',\''+_fire_name+'\')" title="toggle to heat scale"><span id="'+_fire_name+'" class="glyphicon glyphicon-fire" style="color:#337ab7;"></span> </button>';
 }
+
+// if there is only 1 data, no need to expand
+if(moreThanOneData()) {
   _nn+='<a class="accordion-toggle" data-toggle="collapse" data-parent="#plotList" href="#' +_collapse_name+'" title="click to expand" >'+pname+'</a>';
+} else {
+  _nn+='<text>'+pname+'</text>';
+}
   _nn+='</div> <!-- panel-title -->'; 
   _nn+='</div> <!-- panel-heading-->';
   _nn+='<div id="'+_collapse_name+'" class="panel-collapse collapse">';
   _nn+='<div id="'+_body_name+'" class="panel-body">';
-  // last bits
   _nn+='</div> <!-- panel-body -->';
   _nn+='</div>';
+  // last bits
   _nn+='</div> <!-- panel -->';
   jQuery('#plotList').append(_nn);
   window.console.log(_nn);
@@ -99,14 +127,13 @@ if(name != "Subplots") {
 
 
 /* add datalist to a plot */
-function setupDataList2Plots(dlist) {
-   nameOfData=dlist;
+function setupDataList2Plots() {
    for(var i=0; i<nameOfPlot.length;i++) {
      var pname=nameOfPlot[i];
-     setupDataList(i, dlist);
+     setupDataList(i, nameOfData);
      /* setup tracking of datalist per plot */
      var tmp={};
-     for(var j=0; j<dlist.length; j++) {
+     for(var j=0; j<nameOfData.length; j++) {
        tmp[j]=true;
      }
      trackingData[i]=tmp;
@@ -203,11 +230,11 @@ function togglePlot(plot_idx, plot_label) {
 */
 function removePlotHeat(plot_idx) {
   trackingPlotHeat[plot_idx]=false;
-  updatePlot(plot_idx);
+  refreshPlot(plot_idx);
 }
 function enablePlotHeat(plot_idx) {
   trackingPlotHeat[plot_idx]=true;
-  updatePlot(plot_idx);
+  refreshPlot(plot_idx);
 }
 
 function togglePlotHeat(plot_idx, plot_label) {
@@ -229,13 +256,20 @@ id="eye_segment1_0"
 function removeData(plot_idx,data_idx) {
   trackingData[plot_idx][data_idx]=false;
 //  window.console.log("D->",trackingData[plot_idx]);
-  updatePlot(plot_idx);
-//offTrace(plot_idx,data_idx);
+  if(useHeat(plot_idx)) {
+    refreshPlot(plot_idx);
+    } else {
+      offTrace(plot_idx,data_idx);
+  }
 }
 function enableData(plot_idx,data_idx) {
   trackingData[plot_idx][data_idx]=true;
 //  window.console.log("D->",trackingData[plot_idx]);
-  updatePlot(plot_idx);
+  if(useHeat(plot_idx)) {
+    refreshPlot(plot_idx);
+    } else {
+      onTrace(plot_idx,data_idx);
+  }
 }
 
 function toggleDataByIdx(plot_idx,data_idx, data_label) {

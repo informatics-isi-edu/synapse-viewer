@@ -14,6 +14,7 @@
 //  type: "subplots"
 
 var  initPlot_data=[]; // very first set of original data
+var  filteredPlot_data=[]; // filtered the content..
 var  initPlot_name; // original file stubs of the data files
 var  saveFirst=true;
 
@@ -61,11 +62,12 @@ jQuery(document).ready(function() {
   var args=document.location.href.split('?');
   if (args.length >= 2) {
      var urls=processArgs(args);
-// just process 1st one for now
      if(urls.length >= 1) {
-       var plist=setupPlotList();
        initPlot_name=loadAndProcessCSVfromFiles(urls);
-       setupDataList2Plots(initPlot_name);
+       var plist=setupPlotList(initPlot_name);
+       setupDataList2Plots();
+//XXX, filter the initial data set here.. ie, override=7
+//XXX, collect and set the 'global information'
        } else {
          alertify.error("Usage: view.html?http://datapath/data.csv");
          return;
@@ -92,9 +94,11 @@ window.onresize=function() {
 // The first one, 3d and uses all the data
 function displayInitPlot() {
   var plot_idx=0;
-  updatePlot(plot_idx);
+  refreshPlot(plot_idx);
+if(HAS_SUBPLOTS) {
   var plot_idx=1;
-  updatePlot(plot_idx);
+  refreshPlot(plot_idx);
+}
 }
 
 // just in case myColor is too little
@@ -121,7 +125,8 @@ function getDataWithTrackList(tlist,myColor) {
 }
 
 
-function updatePlot(plot_idx) {
+// This complete recompute the plot
+function refreshPlot(plot_idx) {
   var tlist=getDataListForPlot(plot_idx);
   var ptype=getPlotType(plot_idx);
   switch (ptype) {
@@ -140,6 +145,7 @@ function updatePlot(plot_idx) {
       var clist=tmp[1];
       var nlist=tmp[2];
       addSubplots(plot_idx, nlist, dlist,'X','Y','Z', clist);
+//      togglePlot(1,'eye_Subplots');
       break;
   }
 }

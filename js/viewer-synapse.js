@@ -10,6 +10,14 @@ var initPlot_core=[],
     initPlot_toplvl=[], 
     initPlot_transp=[];
 
+// these are per data file
+var initStepX=[]; 
+var initStepY=[];
+var initStepZ=[];
+var initSize=[]; // size of the marker
+var initOpacity=[]; // opacity of the marker
+var initAlias=[];
+
 var  saveRangeX;
 var  saveRangeY;
 var  saveRangeZ;
@@ -21,6 +29,15 @@ var  saveRangeZ;
 // not sure if this is per file or per experiment
 //parameters,"(core, vicinity, zerolvl, toplvl,transp):", 
 //390.77695513916035, 890.06885742187546, 150.10100000000006, 10721.5, 0.8
+
+//new parameters (per url file)
+// (microns-per-pixel/microns-per-step), 
+// stepX=0.26, stepY=0.26, stepZ=0.4
+// size=3, 
+//   example value really does mean 0.4 micron steps in Z (400
+//   nanometer) and 0.26 micron steps in X and Y (260 nanometer).
+// also, alias  to supplement the filestub as trace-name
+
 function processArgs(args) {
   var urls=[];
   var params = args[1].split('&');
@@ -74,6 +91,47 @@ function processArgs(args) {
                initPlot_transp.push(t);
              break;
              }
+          case 'stepX': 
+             {
+             var t=parseFloat(kvp[1]);
+             if(!isNaN(t))
+               initStepX.push(t);
+             break;
+             }
+          case 'stepY': 
+             {
+             var t=parseFloat(kvp[1]);
+             if(!isNaN(t))
+               initStepY.push(t);
+             break;
+             }
+          case 'stepZ': 
+             {
+             var t=parseFloat(kvp[1]);
+             if(!isNaN(t))
+               initStepZ.push(t);
+             break;
+             }
+          case 'size': 
+             {
+             var t=parseInt(kvp[1]);
+             if(!isNaN(t))
+               initSize.push(t);
+             break;
+             }
+          case 'opacity': 
+             {
+             var t=parseFloat(kvp[1]);
+             if(!isNaN(t))
+               initOpacity.push(t);
+             break;
+             }
+          case 'alias': 
+             {
+             var t=trimQ(kvp[1]);
+             initAlias.push(t);
+             break;
+             }
           default: { 
              /* drop this..*/
              break;
@@ -95,6 +153,14 @@ function trimKey(key) {
    return key;
 }
 
+function trimQ(alias) {
+  var str=alias.trim(); // trim the ' or "
+  if( (str[0] == "\"" && str[ str.length-1 ] == "\"")
+   || (str[0] == "\'" && str[ str.length-1 ] == "\'"))
+  str=str.substr(1,str.length-2);
+  return str;
+}
+
 // given an array of values, return an array of log values
 function logValue(data) {
   var n = data.map(function (v) {
@@ -110,16 +176,63 @@ function chopForStub(url){
   return ss;
 }
 
-/*
-var sample = './data/sample.csv';
-fs.readFile(sample, 'UTF-8', function(err, csv) {
-  $.csv.toArrays(csv, {}, function(err, data) {
-    for(var i=0, len=data.length; i<len; i++) {
-      console.log(data[i]);
-    }
-  });
-});
-*/
+function markerSize(s) {
+   if(initSize.length ==0 || initSize.length <= s ) {
+     return 4; 
+   } else {
+     return initSize[s];
+   }
+}
+
+function markerOpacity(s) {
+   if(initOpacity.length==0 || initOpacity.length <= s)
+     return 1; 
+   else 
+     return initOpacity[s];
+}
+
+// mainly for suplots because the threeD plot can only
+// use 1 set of Aspects and everyone conforms to it.
+function polishAspects(s) {
+window.console.log("aspects.. for ",s);
+  if(initStepX.length == 0) {
+window.console.log("aspects.. using default");
+    return [1, 1, 1];
+  }
+
+  var t=s;
+  if(t >= initStepX.length) {
+    t=0;
+  }
+
+  var stepX=initStepX[t];
+  var stepY=initStepY[t];
+  var stepZ=initStepZ[t];
+
+window.console.log("aspects..start",stepX," ", stepY," ", stepZ);
+  var min=Math.min.apply(Math,[stepX,stepY,stepZ]);
+window.console.log("aspects..",stepX/min," ", stepY/min," ", stepZ/min);
+  return [stepX/min, stepY/min, stepZ/min ];
+}
+
+function convert2micron(data, s) {
+  if(initStepX.length == 0)
+    return;
+  var t=s;
+  // out of range, use the first set
+  if( t >= initStepX.length) {
+    t=0;
+  }
+  
+  var stepX=initStepX[t];
+  var stepY=initStepY[t];
+  var stepZ=initStepZ[t];
+  for(var i=0; i<data.length; i++) {
+    data[i]['X']= data[i]['X'] * stepX;
+    data[i]['Y']= data[i]['Y'] * stepX;
+    data[i]['Z']= data[i]['Z'] * stepX;
+  }
+}
 
 function loadAndProcessCSVfromFiles(urls) {
   var nlist=[];
@@ -137,10 +250,14 @@ function loadAndProcessCSVfromFiles(urls) {
 window.console.log("found a comment line..");
           data.splice(0,1);
         }
+// convert X,Y,Z to micron world..
+        convert2micron(data, i);
         initPlot_data.push(data);
-     
       });
       var fstub=chopForStub(url);
+      if(initAlias.length > i) {
+        fstub=initAlias[i];
+      }
       nlist.push(fstub);
   }
 

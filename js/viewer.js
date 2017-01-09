@@ -31,7 +31,7 @@ var  subplotsDivname="#myViewer_subplots";
 #B700B7    magenta (0.718, 0, 0.718)
 */
 
-var myColor=['#DF0F0F','#868600','#009600','#5050FC', '#B700B7','#008E8E'];
+var defaultColor=['#DF0F0F','#868600','#009600','#5050FC', '#B700B7','#008E8E'];
 // should be a very small file and used for testing and so can ignore
 // >>Synchronous XMLHttpRequest on the main thread is deprecated
 // >>because of its detrimental effects to the end user's experience.
@@ -102,26 +102,34 @@ if(HAS_SUBPLOTS) {
 }
 
 // just in case myColor is too little
-function getColor(p) {
-  var len=myColor.length;
+function getDefaultColor(p) {
+  var len=defaultColor.length;
   var t= (p+len) % len; 
-  return myColor[t];
+  return defaultColor[t];
 }
 
 // return datalist and a color list
-function getDataWithTrackList(tlist,myColor) {
-   var dlist=[];
-   var clist=[];
-   var nlist=[];
+function getDataWithTrackList(tlist) {
+   var dlist=[]; // data list
+   var clist=[]; // color list
+   var nlist=[]; // data name list 
+   var slist=[]; // marker size list
+   var olist=[]; // marker opacity list
+   var vlist=[]; // trace visible list
    var cnt=Object.keys(tlist).length;
    for(var i=0;i<cnt; i++) {
+     dlist.push(initPlot_data[i]);
+     clist.push(getMyColor(i));
+     nlist.push(initPlot_name[i]);
+     slist.push(markerSize(i));
+     olist.push(markerOpacity(i));
      if(tlist[i]) {
-       dlist.push(initPlot_data[i]);
-       clist.push(getColor(i));
-       nlist.push(initPlot_name[i]);
+       vlist.push(true);
+       } else {
+         vlist.push(false);
      }
    }
-   return [dlist, clist, nlist];
+   return [dlist, clist, nlist, slist, olist, vlist];
 }
 
 
@@ -132,19 +140,13 @@ function refreshPlot(plot_idx) {
   switch (ptype) {
     case '3D scatter' :
       $(scatterDivname).empty();
-      var tmp=getDataWithTrackList(tlist,myColor); 
-      var dlist=tmp[0];
-      var clist=tmp[1];
-      var nlist=tmp[2];
-      addThreeD(plot_idx,nlist, dlist,'X','Y','Z', clist);
+      var config=getDataWithTrackList(tlist); 
+      addThreeD(plot_idx,'X','Y','Z', config);
       break;
     case 'Subplots' :
       $(subplotsDivname).empty();
-      var tmp=getDataWithTrackList(tlist,myColor); 
-      var dlist=tmp[0];
-      var clist=tmp[1];
-      var nlist=tmp[2];
-      addSubplots(plot_idx, nlist, dlist,'X','Y','Z', clist);
+      var config=getDataWithTrackList(tlist); 
+      addSubplots(plot_idx, 'X','Y','Z', config);
 //      togglePlot(1,'eye_Subplots');
       break;
   }

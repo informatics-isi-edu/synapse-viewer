@@ -97,24 +97,7 @@ function getMinMaxOfPlotlyData(pdata) {
   return [ xrange, yrange, zrange];
 }
 
-function addThreeD_one(title, data, keyX,keyY,keyZ, color) {
-  var sz=markerSize(0);
-  var op=markerOpacity(0);
-  var _one= getScatter3DAt_set(title, data, keyX, keyY, keyZ, sz, op, color);
-  var ranges=getMinMaxOfPlotlyData(_one);
-  var _data= [ _one ];
-
-  var _aspects=polishAspects(0); // use the first one
-  var _width=800;
-  var _height=600;
-  var _layout=getScatter3DDefaultLayout(trimKey(keyX),trimKey(keyY),trimKey(keyZ),
-     ranges[0],ranges[1], ranges[2],_aspects, _width, height);
-  var plot=addAPlot(scatterDivname,_data, _layout, _width, _height);
-  savePlot.push(plot);
-  return plot;
-}
-
-function getScatter3DAt_set(title,data,xkey, ykey, zkey, sz, op, mcolor) {
+function getScatter3DAt_set(fname,data,xkey, ykey, zkey, sz, op, mcolor,vis) {
   var x=getOriginalDataByKey(data,xkey);
   var y=getOriginalDataByKey(data,ykey);
   var z=getOriginalDataByKey(data,zkey);
@@ -124,11 +107,12 @@ function getScatter3DAt_set(title,data,xkey, ykey, zkey, sz, op, mcolor) {
      } else {
        l={color: "black", width: 1};
   }
-  var data= { name: title,
+  var data= {  name: fname,
                x: x,
                y: y,
                z: z,
                mode: "markers",
+               visible: vis,
                marker: {
                    color: mcolor,
                    size: sz,
@@ -141,7 +125,7 @@ function getScatter3DAt_set(title,data,xkey, ykey, zkey, sz, op, mcolor) {
 
 // combine all the data into a single trace before drawing it
 // fix the marker size and also the opacity
-function getScatter3DAt_heat(title,datalist,xkey, ykey, zkey, heatkey) {
+function getScatter3DAt_heat(fname,datalist,xkey, ykey, zkey, heatkey, visiblelist) {
   var cnt=datalist.length;
   var d;
   var x=[];
@@ -149,15 +133,17 @@ function getScatter3DAt_heat(title,datalist,xkey, ykey, zkey, heatkey) {
   var z=[];
   var mcolor=[];
   for(var i=0; i< cnt; i++) {
-    d=datalist[i]; 
-    var xx=getOriginalDataByKey(d,xkey);
-    var yy=getOriginalDataByKey(d,ykey);
-    var zz=getOriginalDataByKey(d,zkey);
-    var mm=getOriginalDataByKey(d,heatkey);
-    x=x.concat(xx);
-    y=y.concat(yy);
-    z=z.concat(zz);
-    mcolor=mcolor.concat(mm);
+    if(visiblelist[i]) {
+      d=datalist[i]; 
+      var xx=getOriginalDataByKey(d,xkey);
+      var yy=getOriginalDataByKey(d,ykey);
+      var zz=getOriginalDataByKey(d,zkey);
+      var mm=getOriginalDataByKey(d,heatkey);
+      x=x.concat(xx);
+      y=y.concat(yy);
+      z=z.concat(zz);
+      mcolor=mcolor.concat(mm);
+    }
   }
 
   var cmax=Math.max.apply(Math,mcolor);
@@ -190,21 +176,21 @@ aspects,width,height){
     tmpx= { "title":xkey, 
 //'#636363',
             "showline": true,
+            "ticks":"inside",
             "linecolor": 'black',
             "linewidth": 4,
-//            "range": [0,300] };
             "range": xrange };
     tmpy= { "title":ykey+" (micron)",
             "showline": true,
+            "ticks":"inside",
             "linecolor": 'black',
             "linewidth": 4,
-//            "range": [0,300] };
             "range": yrange };
     tmpz= { "title":zkey,
             "showline": true,
+            "ticks":"inside",
             "linecolor": 'black',
             "linewidth": 4,
-//             "range": [0,150] };
              "range": zrange };
     } else {
       tmpx= { "title":xkey };
@@ -228,19 +214,28 @@ aspects,width,height){
   return p;
 }
 
-function addThreeD(plot_idx,namelist, datalist, keyX,keyY,keyZ, colorlist) {
+// need to make the whole set and then turn the untracked 
+// trace to be invisible
+// the heat version is just to rebuilt the whole set from 
+// scratch
+function addThreeD(plot_idx,keyX,keyY,keyZ, config) {
+  var datalist=config[0];
+  var colorlist=config[1];
+  var namelist=config[2];
+  var sizelist=config[3];
+  var opacitylist=config[4];
+  var visiblelist=config[5];
+   
   var _data=[];
   var cnt=datalist.length;
 // special case..
   if(useHeat(plot_idx)) {
-    var tmp=getScatter3DAt_heat(namelist, datalist, keyX, keyY, keyZ, 'raw core');
+    var tmp=getScatter3DAt_heat(namelist, datalist, keyX, keyY, keyZ, 'raw core',visiblelist);
     _data.push(tmp);
     } else {
     for( var i=0; i<cnt; i++) {
-       var sz=markerSize(i);
-       var op=markerOpacity(i);
        var tmp=getScatter3DAt_set(namelist[i], datalist[i], keyX, keyY, keyZ,
-                                    sz, op, colorlist[i]);
+            sizelist[i], opacitylist[i], colorlist[i], visiblelist[i]);
        _data.push(tmp);
     }
   }
@@ -251,7 +246,7 @@ function addThreeD(plot_idx,namelist, datalist, keyX,keyY,keyZ, colorlist) {
   var _layout=getScatter3DDefaultLayout(trimKey(keyX),trimKey(keyY),trimKey(keyZ),
               saveRangeX, saveRangeY, saveRangeZ, _aspects, _width, _height);
   var plot=addAPlot(scatterDivname,_data, _layout, _width, _height);
-  savePlot.push(plot);
+  savePlot[0]=plot;
   return plot;
 }
 
@@ -267,22 +262,26 @@ for(var i=0;i<data.length;i++) {
 return n;
 }
  
-function addPlotlyTrace(plot,update, target) {
-window.console.log("-->adding trace before, ", target, foo(plot));
-  Plotly.addTraces(plot, update, target);
-window.console.log("-->adding trace after, ", target, foo(plot));
-}
-
-function removePlotlyTrace(plot,trace_id) {
+function addPlotlyTrace(plot,target) {
   var _data=plot.data;
-  if(_data.length <= trace_id) {
+  if(_data.length <= target) {
     // no trace in there.
     } else {
-window.console.log("-->delete trace before, ", trace_id, foo(plot));
-      Plotly.deleteTraces(plot, trace_id); //start with 0
-window.console.log("-->delete trace after, ", trace_id, foo(plot));
+      var update = { visible: true };
+      Plotly.restyle(plot, update, [target]);
   }
 }
+
+function removePlotlyTrace(plot,target) {
+  var _data=plot.data;
+  if(_data.length <= target) {
+    // no trace in there.
+    } else {
+      var update = { visible: false };
+      Plotly.restyle(plot, update, [target]);
+  }
+}
+
 function cacheThreeDTrace(data, data_idx, cache_idx) {
   threeDTraceCache[data_idx]=data[cache_idx];
 }
@@ -347,15 +346,9 @@ function getTraceIdxFromPlotLarger(plot, data_idx) {
 function offTrace(plot_idx,data_idx) {
   if(plot_idx ==0) { // it is the threeD plot  
     var plot=savePlot[0];
-    var trace_name=getTraceNameList(data_idx);
-    var trace_id=getTraceIdxFromPlot(plot,trace_name);
-    cacheThreeDTrace(plot.data, data_idx, trace_id);
-    removePlotlyTrace(plot,trace_id);
+    removePlotlyTrace(plot,data_idx);
     } else {
       var plot=savePlot[1];
-      var trace_name=getTraceNameList(data_idx);
-      var trace_id=getTraceIdxFromPlot(plot,trace_name);
-      cacheSubplotsTrace(plot.data, data_idx, trace_id);
       removePlotlyTrace(plot,data_idx);
   }
 }
@@ -363,44 +356,21 @@ function offTrace(plot_idx,data_idx) {
 function onTrace(plot_idx,data_idx) {
   if(plot_idx ==0) { // it is the threeD plot  
     var plot=savePlot[0];
-    var update=getThreeDTraceFromCache(data_idx);
-    var trace_idx=getTraceIdxFromPlotLarger(plot, data_idx);
-    addPlotlyTrace(plot,update, trace_idx);
+    addPlotlyTrace(plot,data_idx);
     } else {
       var plot=savePlot[1];
-      var update=getSubplotsTraceFromCache(data_idx);
-      var trace_idx=getTraceIdxFromPlotLarger(plot, data_idx);
-      addPlotlyTrace(plot,update, trace_idx);
+      addPlotlyTrace(plot,data_idx);
   }
 }
 
-/****************
-  var update = { shapes : [ _s ] };
-  Plotly.relayout(aPlot,update);
-    oldDiv.layout.shapes[0].line.width=0;
-    oldDiv.layout.shapes[1].line.width=0;
-    Plotly.redraw(oldDiv);
-   var plot=savePlot[plot_idx];
-   var target=plot.data;
-   var popacity=target[data_idx].marker.opacity;
-   var pcolor=target[data_idx].marker.color;
-window.console.log(">>",popacity);
-window.console.log(">>",pcolor);
-window.console.log(">>", plot_idx);
-window.console.log(">>", data_idx);
-   savePlot[plot_idx].data[data_idx].marker.opacity=0;
-   Plotly.redraw(savePlot[plot_idx]);
-
-plot_ly(df,
-        type="bar",
-        x=x,
-        y=y,
-        opacity=opacity,
-        color=as.factor(x))
-Plotly.update(XXX);
-*******************/
-
-function addSubplots(plot_idx,namelist, datalist, keyX,keyY,keyZ, colorlist) {
+function addSubplots(plot_idx,keyX,keyY,keyZ, config) {
+  var datalist=tmp[0];
+  var colorlist=tmp[1];
+  var namelist=tmp[2];
+  var sizelist=tmp[3];
+  var opacitylist=tmp[4];
+  var visiblelist=tmp[5];
+   
   var _data=[];
   var cnt=datalist.length;
   for( var i=0; i<cnt; i++) {
@@ -415,16 +385,16 @@ function addSubplots(plot_idx,namelist, datalist, keyX,keyY,keyZ, colorlist) {
   var _layout=getSubplotsDefaultLayout(trimKey(keyX),trimKey(keyY),trimKey(keyZ),
               saveRangeX, saveRangeY, saveRangeZ, _width, _height);
   var plot=addAPlot(subplotsDivname,_data, _layout, _width, _height);
-  savePlot.push(plot);
+  savePlot[1]=plot;
   return plot;
 }
 
 
-function getSubplotsAt(title,data,xkey, ykey, zkey, mcolor, slabel) {
+function getSubplotsAt(fname,data,xkey, ykey, zkey, mcolor, slabel) {
   var x=getOriginalDataByKey(data,xkey);
   var y=getOriginalDataByKey(data,ykey);
   var z=getOriginalDataByKey(data,zkey);
-   var data= { name: title,
+   var data= { name: fname,
                x: x,
                y: y,
                z: z,

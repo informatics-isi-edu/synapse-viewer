@@ -17,6 +17,9 @@ var initStepZ=[];
 var initSize=[]; // size of the marker
 var initOpacity=[]; // opacity of the marker
 var initAlias=[];
+var initColor=[]; //initial color
+var initTitle=[];
+var myColor=[];  // color to be used - merged from initColor&defaultColor
 
 var  saveRangeX;
 var  saveRangeY;
@@ -132,7 +135,20 @@ function processArgs(args) {
              initAlias.push(t);
              break;
              }
+          case 'color': 
+             {
+             var t=trimQ(kvp[1]);
+             initColor.push(t);
+             break;
+             }
+          case 'title': 
+             {
+             var t=trimQ(kvp[1]);
+             initTitle.push(t);
+             break;
+             }
           default: { 
+window.console.log("dropping this...",kvp[0].trim());
              /* drop this..*/
              break;
              }
@@ -234,6 +250,10 @@ function convert2micron(data, s) {
   }
 }
 
+function getMyColor(i) {
+  return myColor[i];
+}
+
 function loadAndProcessCSVfromFiles(urls) {
   var nlist=[];
   var cnt=urls.length;
@@ -254,6 +274,11 @@ window.console.log("found a comment line..");
         convert2micron(data, i);
         initPlot_data.push(data);
       });
+      var color=getDefaultColor(i);
+      if(initColor.length > i) {
+        color=initColor[i];
+      }
+      myColor.push(color);
       var fstub=chopForStub(url);
       if(initAlias.length > i) {
         fstub=initAlias[i];

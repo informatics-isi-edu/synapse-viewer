@@ -171,7 +171,7 @@ window.console.log(tmp);
 function add2DataList(plot_idx, data_idx,dname, special) {
   var name = dname.replace(/ +/g, "");
   var _eye_name="eye_"+name+plot_idx;
-  var _eye_color=getColor(data_idx);
+  var _eye_color=getMyColor(data_idx);
   var _visible_name=plot_idx+"_"+data_idx+"_data_visible";
   var _nn='';
   _nn+='<div class="row col-md-12">'; 

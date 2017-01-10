@@ -200,14 +200,19 @@ aspects,width,height){
   var p= {
       width: width, 
       height: height,
-      paper_bgcolor: '#eaeaea',
+//      paper_bgcolor: '#eaeaea',
+paper_bgcolor:"rgb(31,31,31)",
+            plot_bgcolor:"rgb(31,31,31)",
       showlegend: false,
       hovermode: 'closest',
       scene: {
         xaxis: tmpx,
         yaxis: tmpy,
         zaxis: tmpz,
-        aspectratio : { x:aspects[0], y:aspects[1], z:aspects[2] }
+        aspectratio : { x:aspects[0], y:aspects[1], z:aspects[2] },
+        camera : {'eye':{'x':1.5,'y':1.5,'z':1.5},
+                   'up': {'x':0,'y':0,'z':1},
+                 'center': {'x':0,'y':0,'z':0}}
       }
       };
 //window.console.log(p);

@@ -245,8 +245,8 @@ function convert2micron(data, s) {
   var stepZ=initStepZ[t];
   for(var i=0; i<data.length; i++) {
     data[i]['X']= data[i]['X'] * stepX;
-    data[i]['Y']= data[i]['Y'] * stepX;
-    data[i]['Z']= data[i]['Z'] * stepX;
+    data[i]['Y']= data[i]['Y'] * stepY;
+    data[i]['Z']= data[i]['Z'] * stepZ;
   }
 }
 

@@ -3,11 +3,6 @@
 //
 var savePlot=[]; // first one is threeD, 2nd is subplots
 
-// usually a trace is deleted and added back without any changes
-// so instead of rebuild a new trace, just cache it and reuse it
-var threeDTraceCache={};
-var subplotsTraceCache={};
-
 function addAPlot(divname, data, layout, w, h) {
   var d3 = Plotly.d3;
   var gd3 = d3.select(divname)
@@ -235,7 +230,8 @@ function addThreeD(plot_idx,keyX,keyY,keyZ, config) {
   var cnt=datalist.length;
 // special case..
   if(useHeat(plot_idx)) {
-    var tmp=getScatter3DAt_heat(namelist, datalist, keyX, keyY, keyZ, 'raw core',visiblelist);
+    var tmp=getScatter3DAt_heat(namelist, datalist, keyX, keyY, keyZ,
+ useHeatTerm(0),visiblelist);
     _data.push(tmp);
     } else {
     for( var i=0; i<cnt; i++) {
@@ -285,22 +281,6 @@ function removePlotlyTrace(plot,target) {
       var update = { visible: false };
       Plotly.restyle(plot, update, [target]);
   }
-}
-
-function cacheThreeDTrace(data, data_idx, cache_idx) {
-  threeDTraceCache[data_idx]=data[cache_idx];
-}
-
-function cacheSubplotsTrace(data, data_idx, cache_idx) {
-  subplotsTraceCache[data_idx]=data[cache_dx];
-}
-
-function getThreeDTraceFromCache(data_idx) {
-   return threeDTraceCache[data_idx];
-}
-
-function getSubplotsTraceFromCache(data_idx) {
-   return subplotsTraceCache[data_idx];
 }
 
 function relayoutPlotlyPlot(plot,update) {

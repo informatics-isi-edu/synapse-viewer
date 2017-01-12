@@ -147,7 +147,13 @@ function refreshPlot(plot_idx) {
       $(subplotsDivname).empty();
       var config=getDataWithTrackList(tlist); 
       addSubplots(plot_idx, 'X','Y','Z', config);
-//      togglePlot(1,'eye_Subplots');
       break;
   }
+
+//THIS altering scene top
+/*
+  var scene = document.getElementById("scene");
+  scene.style.top='10px';
+  window.console.log(">>> secene top",scene.style.top);
+*/
 }

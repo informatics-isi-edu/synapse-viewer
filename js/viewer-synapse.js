@@ -11,14 +11,15 @@ var initPlot_core=[],
     initPlot_transp=[];
 
 // these are per data file
-var initStepX=[]; 
-var initStepY=[];
-var initStepZ=[];
-var initSize=[]; // size of the marker
+var initStepX=[];  //
+var initStepY=[];  //
+var initStepZ=[];  //
+var initSize=[];    // size of the marker
 var initOpacity=[]; // opacity of the marker
-var initAlias=[];
-var initColor=[]; //initial color
-var initTitle=[];
+var initAlias=[];   // alias for each dataset to be used as label
+var initColor=[];   //initial color
+var initTitle=[];   // title to be used for subplots/or main scatter plot
+var initHeatOn=[];  // column to be used to create heat scale ('raw core') 
 var myColor=[];  // color to be used - merged from initColor&defaultColor
 
 var  saveRangeX;
@@ -40,7 +41,6 @@ var  saveRangeZ;
 //   example value really does mean 0.4 micron steps in Z (400
 //   nanometer) and 0.26 micron steps in X and Y (260 nanometer).
 // also, alias  to supplement the filestub as trace-name
-
 function processArgs(args) {
   var urls=[];
   var params = args[1].split('&');
@@ -147,6 +147,12 @@ function processArgs(args) {
              initTitle.push(t);
              break;
              }
+          case 'heat': 
+             {
+             var t=trimQ(kvp[1]);
+             initHeatOn.push(t);
+             break;
+             }
           default: { 
 window.console.log("dropping this...",kvp[0].trim());
              /* drop this..*/
@@ -198,6 +204,13 @@ function markerSize(s) {
    } else {
      return initSize[s];
    }
+}
+
+function useHeatTerm(s) {
+   if(initHeatOn.length==0 || initHeatOn.length <= s)
+     return 'raw core'; 
+   else 
+     return initHeatOn[s];
 }
 
 function markerOpacity(s) {

@@ -283,6 +283,22 @@ function loadAndProcessCSVfromFiles(urls) {
 window.console.log("found a comment line..");
           data.splice(0,1);
         }
+// filter all rows with override not 7 
+        {
+          var cnt=data.length;
+          for(var i=0;;) {
+            var v=data[i]['override'];
+            if(v != "7") {
+              data.splice(i,1);
+              cnt--;
+              } else {
+              i++;
+            }
+            if(i >= cnt) {
+              break;
+            }
+          }
+        }
 // convert X,Y,Z to micron world..
         convert2micron(data, i);
         initPlot_data.push(data);

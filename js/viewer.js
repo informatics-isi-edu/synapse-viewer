@@ -64,6 +64,8 @@ jQuery(document).ready(function() {
      var urls=processArgs(args);
      if(urls.length >= 1) {
        initPlot_name=loadAndProcessCSVfromFiles(urls);
+       if(initPlot_name == [])
+         return;
        var plist=setupPlotList(initPlot_name);
        setupDataList2Plots();
 //XXX, filter the initial data set here.. ie, override=7

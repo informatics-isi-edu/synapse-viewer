@@ -279,6 +279,10 @@ function loadAndProcessCSVfromFiles(urls) {
         // X="(core, vincinity, zerolvl, toplvl, transp):"
         // Y="parameters"
         // Z="saved"
+        if(data.length == 0) {
+          alertify.error("Fail: can not access ",url);
+          return nlist;
+        }
         if(data[0]['Z'] == "saved") {
 window.console.log("found a comment line..");
           data.splice(0,1);

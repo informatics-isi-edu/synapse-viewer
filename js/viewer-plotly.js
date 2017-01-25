@@ -197,6 +197,12 @@ aspects,width,height){
   var p= {
       width: width, 
       height: height,
+      margin: {
+              l:20,
+              r:20,
+              b:20,
+              t:20
+              },
 //      paper_bgcolor: '#eaeaea',
 paper_bgcolor:"rgb(31,31,31)",
             plot_bgcolor:"rgb(31,31,31)",
@@ -207,7 +213,7 @@ paper_bgcolor:"rgb(31,31,31)",
         yaxis: tmpy,
         zaxis: tmpz,
         aspectratio : { x:aspects[0], y:aspects[1], z:aspects[2] },
-        camera : { eye:{x:1.2,y:1.2,z:1.2},
+        camera : { eye:{x:1.8,y:1.8,z:1.8},
                    up: {x:0,y:0,z:1},
                    center: {x:0,y:0,z:0}}
       }

@@ -36,12 +36,7 @@
 </head>
 <body>
 <div class="container-fluid">
-<div class="row col-md-1">
-  <button id="plots-button" type="button" class="row btn-sm" style="background-color:#eaeaea;border:none;" onclick="plotsClick()">
-    <span class="glyphicon glyphicon-menu-right"></span>
-  </button>
-</div> 
-<div id='viewerBlock'">
+<div id='viewerBlock' style="position:absolute; top:0; left:0">
   <div id='myViewer_scatter' class="row col-md-12 col-xs-12"></div>
   <div id='myViewer_subplots' class="row col-md-12 col-xs-12"></div>
 </div>
@@ -57,6 +52,11 @@
   </li>
 </ul>
 </div><!-- controlBlock -->
+<div class="row col-md-1">
+  <button id="plots-button" type="button" class="row btn-sm" style="background-color:transparent;border:none; color:white" onclick="plotsClick()">
+    <span class="glyphicon glyphicon-menu-right"></span>
+  </button>
+</div> 
 </div><!-- container-fluid -->
 </body>
 </html>

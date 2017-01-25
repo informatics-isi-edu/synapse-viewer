@@ -20,6 +20,8 @@ var  saveFirst=true;
 
 var  scatterDivname="#myViewer_scatter";
 var  subplotsDivname="#myViewer_subplots";
+var  frameWidth=100;
+var  frameHeight=100;
 
 
 /*
@@ -54,6 +56,9 @@ function ckExist(url) {
 /*****MAIN*****/
 jQuery(document).ready(function() {
 
+  frameHeight=window.innerHeight;
+  frameWidth=window.innerWidth;
+window.console.log("READY:: ", frameHeight, ", ",frameWidth);
   var fstub='csv';
 
   // defaults from viewer-user.js
@@ -79,18 +84,24 @@ jQuery(document).ready(function() {
   if(!enableEmbedded) {
     displayInitPlot();
   }
-})
 
 // under chaise/angular, the plot window has
 // width/height=0 when accordian-group is-open=false
-window.onresize=function() {
+window.addEventListener('resize', function(event){
+   frameHeight=window.innerHeight;
+   frameWidth=window.innerWidth;
+window.console.log("ONSIZE:: ", frameHeight, ", ",frameWidth);
    if(enableEmbedded) {
      if(saveFirst) {
        displayInitPlot();
        saveFirst=false;
+       return;
      }
    }
-}
+   resizePlots();
+});
+
+}) // MAIN
 
 // initial plot to display,
 // The first one, 3d and uses all the data
@@ -134,6 +145,11 @@ function getDataWithTrackList(tlist) {
    return [dlist, clist, nlist, slist, olist, vlist];
 }
 
+// could add code for restyle if really needs to
+function resizePlots() {
+  var plot_idx=0;
+  refreshPlot(plot_idx);
+}
 
 // This complete recompute the plot
 function refreshPlot(plot_idx) {
@@ -143,12 +159,12 @@ function refreshPlot(plot_idx) {
     case '3D scatter' :
       $(scatterDivname).empty();
       var config=getDataWithTrackList(tlist); 
-      addThreeD(plot_idx,'X','Y','Z', config);
+      addThreeD(plot_idx,'X','Y','Z', config, frameWidth, frameHeight);
       break;
     case 'Subplots' :
       $(subplotsDivname).empty();
       var config=getDataWithTrackList(tlist); 
-      addSubplots(plot_idx, 'X','Y','Z', config);
+      addSubplots(plot_idx, 'X','Y','Z', config, frameWidth, frameHeight);
       break;
   }
 

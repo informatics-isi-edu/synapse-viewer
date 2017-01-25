@@ -96,11 +96,13 @@ function getScatter3DAt_set(fname,data,xkey, ykey, zkey, sz, op, mcolor,vis) {
   var x=getOriginalDataByKey(data,xkey);
   var y=getOriginalDataByKey(data,ykey);
   var z=getOriginalDataByKey(data,zkey);
-  var l;
-  if(op < 0.5) {
-     l={color: "white", width: 1};
-     } else {
-       l={color: "black", width: 1};
+  var l={};
+  if(sz > 4) {
+    if(op < 0.5) {
+       l={color: "white", width: 1};
+       } else {
+         l={color: "black", width: 1};
+    }
   }
   var data= {  name: fname,
                x: x,
@@ -149,7 +151,7 @@ function getScatter3DAt_heat(fname,datalist,xkey, ykey, zkey, heatkey, visibleli
                mode: "markers",
                marker: {
                    color: mcolor,
-                   size: 4,
+                   size: 3,
                    line: {color: "black", width: 1},
                    colorscale: 'Viridis',
 //                   colorscale: 'Rainbow',
@@ -175,7 +177,7 @@ aspects,width,height){
             "linecolor": 'black',
             "linewidth": 4,
             "range": xrange };
-    tmpy= { "title":ykey+" (micron)",
+    tmpy= { "title":ykey,
             "showline": true,
             "ticks":"inside",
             "linecolor": 'black',
@@ -205,9 +207,9 @@ paper_bgcolor:"rgb(31,31,31)",
         yaxis: tmpy,
         zaxis: tmpz,
         aspectratio : { x:aspects[0], y:aspects[1], z:aspects[2] },
-        camera : {'eye':{'x':1.5,'y':1.5,'z':1.5},
-                   'up': {'x':0,'y':0,'z':1},
-                 'center': {'x':0,'y':0,'z':0}}
+        camera : { eye:{x:1.2,y:1.2,z:1.2},
+                   up: {x:0,y:0,z:1},
+                   center: {x:0,y:0,z:0}}
       }
       };
 //window.console.log(p);
@@ -218,7 +220,7 @@ paper_bgcolor:"rgb(31,31,31)",
 // trace to be invisible
 // the heat version is just to rebuilt the whole set from 
 // scratch
-function addThreeD(plot_idx,keyX,keyY,keyZ, config) {
+function addThreeD(plot_idx,keyX,keyY,keyZ, config, fwidth, fheight) {
   var datalist=config[0];
   var colorlist=config[1];
   var namelist=config[2];
@@ -242,8 +244,8 @@ function addThreeD(plot_idx,keyX,keyY,keyZ, config) {
   }
 
   var _aspects=polishAspects(0); // use the first one
-  var _width=800;
-  var _height=600;
+  var _width=fwidth;
+  var _height=fheight;
   var _layout=getScatter3DDefaultLayout(trimKey(keyX),trimKey(keyY),trimKey(keyZ),
               saveRangeX, saveRangeY, saveRangeZ, _aspects, _width, _height);
   var plot=addAPlot(scatterDivname,_data, _layout, _width, _height);
@@ -348,7 +350,7 @@ function onTrace(plot_idx,data_idx) {
   }
 }
 
-function addSubplots(plot_idx,keyX,keyY,keyZ, config) {
+function addSubplots(plot_idx,keyX,keyY,keyZ, config, fwidth,fheight) {
   var datalist=tmp[0];
   var colorlist=tmp[1];
   var namelist=tmp[2];
@@ -365,8 +367,8 @@ function addSubplots(plot_idx,keyX,keyY,keyZ, config) {
      _data.push(tmp);
   }
 
-  var _width=1200;
-  var _height=600;
+  var _width=fwidth;
+  var _height=fheight;
   var _layout=getSubplotsDefaultLayout(trimKey(keyX),trimKey(keyY),trimKey(keyZ),
               saveRangeX, saveRangeY, saveRangeZ, _width, _height);
   var plot=addAPlot(subplotsDivname,_data, _layout, _width, _height);

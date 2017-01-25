@@ -20,8 +20,8 @@ var  saveFirst=true;
 
 var  scatterDivname="#myViewer_scatter";
 var  subplotsDivname="#myViewer_subplots";
-var  frameWidth=100;
-var  frameHeight=100;
+var  frameWidth=0;
+var  frameHeight=0;
 
 
 /*
@@ -58,7 +58,19 @@ jQuery(document).ready(function() {
 
   frameHeight=window.innerHeight;
   frameWidth=window.innerWidth;
-window.console.log("READY:: ", frameHeight, ", ",frameWidth);
+window.console.log("READY:: ", frameWidth, ", ",frameHeight);
+
+// if the framewidth is small, then make the pull out to span
+// the whole width or else just partial
+  var ctrlptr=$('#controlBlock');
+  if(frameWidth < 300) {
+       ctrlptr.addClass("col-xs-12");
+  } else if (frameWidth < 600) { 
+       ctrlptr.addClass("col-xs-6");
+  } else {
+       ctrlptr.addClass("col-xs-4");
+  }
+
   var fstub='csv';
 
   // defaults from viewer-user.js
@@ -90,7 +102,7 @@ window.console.log("READY:: ", frameHeight, ", ",frameWidth);
 window.addEventListener('resize', function(event){
    frameHeight=window.innerHeight;
    frameWidth=window.innerWidth;
-window.console.log("ONSIZE:: ", frameHeight, ", ",frameWidth);
+window.console.log("ONSIZE:: ", frameWidth, ", ",frameHeight);
    if(enableEmbedded) {
      if(saveFirst) {
        displayInitPlot();

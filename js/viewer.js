@@ -159,12 +159,12 @@ function refreshPlot(plot_idx) {
     case '3D scatter' :
       $(scatterDivname).empty();
       var config=getDataWithTrackList(tlist); 
-      addThreeD(plot_idx,'X','Y','Z', config, frameWidth, frameHeight);
+      addThreeD(plot_idx,'X','Y','Z', config, frameWidth-5, frameHeight-5);
       break;
     case 'Subplots' :
       $(subplotsDivname).empty();
       var config=getDataWithTrackList(tlist); 
-      addSubplots(plot_idx, 'X','Y','Z', config, frameWidth, frameHeight);
+      addSubplots(plot_idx, 'X','Y','Z', config, frameWidth-5, frameHeight-5);
       break;
   }
 

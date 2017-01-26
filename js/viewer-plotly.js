@@ -175,6 +175,7 @@ aspects,width,height,ticks){
             "ticks":"inside",
             "linecolor": 'black',
             "nticks": ticks,
+            "range" : xrange,
             "gridcolor" : '#3C3C3C',
             "linewidth": 3};
     tmpy= { "title":ykey,
@@ -182,6 +183,7 @@ aspects,width,height,ticks){
             "ticks":"inside",
             "linecolor": 'black',
             "nticks": ticks,
+            "range" : yrange,
             "gridcolor" : '#3C3C3C',
             "linewidth": 3};
     tmpz= { "title":zkey,
@@ -189,6 +191,7 @@ aspects,width,height,ticks){
             "ticks":"inside",
             "linecolor": 'black',
             "nticks": ticks,
+            "range" : zrange,
             "gridcolor" : '#3C3C3C',
             "linewidth": 3};
     } else {
@@ -200,10 +203,10 @@ aspects,width,height,ticks){
       width: width, 
       height: height,
       margin: {
-              l:2,
-              r:2,
-              b:2,
-              t:2
+              l:10,
+              r:10,
+              b:10,
+              t:10, 
               },
 //      paper_bgcolor: '#eaeaea',
 paper_bgcolor:"rgb(31,31,31)",
@@ -214,7 +217,8 @@ paper_bgcolor:"rgb(31,31,31)",
         xaxis: tmpx,
         yaxis: tmpy,
         zaxis: tmpz,
-        aspectratio : { x:aspects[0], y:aspects[1], z:aspects[2] },
+//        aspectratio : { x:1, y:1, z:1 },
+// XXX        aspectratio : { x:aspects[0], y:aspects[1], z:aspects[2] },
         camera : { eye:{x:1.3,y:1.3,z:1.3},
                    up: {x:0,y:0,z:1},
                    center: {x:0,y:0,z:0}}

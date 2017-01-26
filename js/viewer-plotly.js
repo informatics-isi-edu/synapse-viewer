@@ -176,24 +176,21 @@ aspects,width,height,ticks){
             "linecolor": 'black',
             "nticks": ticks,
             "gridcolor" : '#3C3C3C',
-            "linewidth": 3,
-            "range": xrange };
+            "linewidth": 3};
     tmpy= { "title":ykey,
             "showline": true,
             "ticks":"inside",
             "linecolor": 'black',
             "nticks": ticks,
             "gridcolor" : '#3C3C3C',
-            "linewidth": 3,
-            "range": yrange };
+            "linewidth": 3};
     tmpz= { "title":zkey,
             "showline": true,
             "ticks":"inside",
             "linecolor": 'black',
             "nticks": ticks,
             "gridcolor" : '#3C3C3C',
-            "linewidth": 3,
-             "range": zrange };
+            "linewidth": 3};
     } else {
       tmpx= { "title":xkey };
       tmpy= { "title":ykey };
@@ -223,7 +220,7 @@ paper_bgcolor:"rgb(31,31,31)",
                    center: {x:0,y:0,z:0}}
       }
       };
-//window.console.log(p);
+window.console.log(p);
   return p;
 }
 

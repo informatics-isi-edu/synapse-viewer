@@ -3,7 +3,7 @@
 //
 var savePlot=[]; // first one is threeD, 2nd is subplots
 
-function addAPlot(divname, data, layout, w, h) {
+function addAPlot(divname, data, layout, w, h, mode) {
   var d3 = Plotly.d3;
   var gd3 = d3.select(divname)
     .append('div')
@@ -14,7 +14,7 @@ function addAPlot(divname, data, layout, w, h) {
     });
 
   var gd = gd3.node();
-  Plotly.newPlot(gd, data, layout);
+  Plotly.newPlot(gd, data, layout, {displayModeBar: mode});
   return gd;
 }
 
@@ -167,27 +167,32 @@ function getScatter3DAt_heat(fname,datalist,xkey, ykey, zkey, heatkey, visibleli
 }
 
 function getScatter3DDefaultLayout(xkey,ykey,zkey,xrange,yrange,zrange,
-aspects,width,height){
+aspects,width,height,ticks){
   var tmpx, tmpy, tmpz;
   if(xrange && yrange && zrange) {
     tmpx= { "title":xkey, 
-//'#636363',
             "showline": true,
             "ticks":"inside",
             "linecolor": 'black',
-            "linewidth": 4,
+            "nticks": ticks,
+            "gridcolor" : '#3C3C3C',
+            "linewidth": 3,
             "range": xrange };
     tmpy= { "title":ykey,
             "showline": true,
             "ticks":"inside",
             "linecolor": 'black',
-            "linewidth": 4,
+            "nticks": ticks,
+            "gridcolor" : '#3C3C3C',
+            "linewidth": 3,
             "range": yrange };
     tmpz= { "title":zkey,
             "showline": true,
             "ticks":"inside",
             "linecolor": 'black',
-            "linewidth": 4,
+            "nticks": ticks,
+            "gridcolor" : '#3C3C3C',
+            "linewidth": 3,
              "range": zrange };
     } else {
       tmpx= { "title":xkey };
@@ -198,10 +203,10 @@ aspects,width,height){
       width: width, 
       height: height,
       margin: {
-              l:20,
-              r:20,
-              b:20,
-              t:20
+              l:2,
+              r:2,
+              b:2,
+              t:2
               },
 //      paper_bgcolor: '#eaeaea',
 paper_bgcolor:"rgb(31,31,31)",
@@ -213,7 +218,7 @@ paper_bgcolor:"rgb(31,31,31)",
         yaxis: tmpy,
         zaxis: tmpz,
         aspectratio : { x:aspects[0], y:aspects[1], z:aspects[2] },
-        camera : { eye:{x:1.8,y:1.8,z:1.8},
+        camera : { eye:{x:1.3,y:1.3,z:1.3},
                    up: {x:0,y:0,z:1},
                    center: {x:0,y:0,z:0}}
       }
@@ -252,9 +257,19 @@ function addThreeD(plot_idx,keyX,keyY,keyZ, config, fwidth, fheight) {
   var _aspects=polishAspects(0); // use the first one
   var _width=fwidth;
   var _height=fheight;
+  var _nticks=0; // default is 0-(don't care)
+  if(_width < 400) {
+    _nticks=5;
+  }
   var _layout=getScatter3DDefaultLayout(trimKey(keyX),trimKey(keyY),trimKey(keyZ),
-              saveRangeX, saveRangeY, saveRangeZ, _aspects, _width, _height);
-  var plot=addAPlot(scatterDivname,_data, _layout, _width, _height);
+              saveRangeX, saveRangeY, saveRangeZ, _aspects, _width, _height, _nticks);
+  var plot;
+// do not show mobar if the window is smaller than 400
+  if(_width > 400)
+    plot=addAPlot(scatterDivname,_data, _layout, _width, _height, true);
+    else
+      plot=addAPlot(scatterDivname,_data, _layout, _width, _height, false);
+
   savePlot[0]=plot;
   return plot;
 }

@@ -122,7 +122,7 @@ function getScatter3DAt_set(fname,data,xkey, ykey, zkey, sz, op, mcolor,vis) {
 
 // combine all the data into a single trace before drawing it
 // fix the marker size and also the opacity
-function getScatter3DAt_heat(fname,datalist,xkey, ykey, zkey, heatkey, visiblelist) {
+function getScatter3DAt_heat(fname,datalist,xkey, ykey, zkey, heatkey, visiblelist, _thickness) {
   var cnt=datalist.length;
   var d;
   var x=[];
@@ -158,6 +158,7 @@ function getScatter3DAt_heat(fname,datalist,xkey, ykey, zkey, heatkey, visibleli
                    cmax:cmax,
                    cmin:cmin,
                    colorbar: {
+                          thickness: _thickness,
                           title:heatkey
                              },
                    opacity: 1 
@@ -241,11 +242,17 @@ function addThreeD(plot_idx,keyX,keyY,keyZ, config, fwidth, fheight) {
   var visiblelist=config[5];
    
   var _data=[];
+  var _width=fwidth;
+  var _height=fheight;
   var cnt=datalist.length;
 // special case..
   if(useHeat(plot_idx)) {
+    var thickness=30; // default
+    if(_width < 400)
+      thickness=10;
+  
     var tmp=getScatter3DAt_heat(namelist, datalist, keyX, keyY, keyZ,
- useHeatTerm(0),visiblelist);
+                   useHeatTerm(0),visiblelist, thickness);
     _data.push(tmp);
     } else {
     for( var i=0; i<cnt; i++) {
@@ -256,8 +263,6 @@ function addThreeD(plot_idx,keyX,keyY,keyZ, config, fwidth, fheight) {
   }
 
   var _aspects=polishAspects(0); // use the first one
-  var _width=fwidth;
-  var _height=fheight;
   var _nticks=0; // default is 0-(don't care)
   if(_width < 400) {
     _nticks=5;

@@ -1,18 +1,36 @@
 // plots sidebar js
 
 var plots_sidebar=false;
+var using_button=false;
 
 // or could initiate a 'click' on
 // the plotsButton
 function dissmissPlots() {
-  plotsClick();
+  if(using_button)
+    plotsClick_btn();
+  else plotsClick();
 }
 
+function plotsClick_btn() {
+  using_button=true;
+  plots_sidebar = !plots_sidebar;
+   if(plots_sidebar) {
+    togglePlotHeat(0,'fire_3Dscatter');
+    var btn = document.getElementById('plots-button');
+    btn.style.color = 'blue';
+    } else {
+      togglePlotHeat(0,'fire_3Dscatter');
+      var btn = document.getElementById('plots-button');
+      btn.style.color = 'white';
+  }
+}
+
+// slide out
 function plotsClick() {
   plots_sidebar = !plots_sidebar;
+//setTrackingPropertyList();
   if(plots_sidebar) {
     sidebar_plots_slideOut();
-//setTrackingPropertyList();
     //hide button
     var btn = document.getElementById('plots-button');
     btn.style.opacity = 0;

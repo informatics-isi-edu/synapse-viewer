@@ -97,23 +97,32 @@ window.console.log("READY:: ", frameWidth, ", ",frameHeight);
     displayInitPlot();
   }
 
+
+  var resizeTimer;
 // under chaise/angular, the plot window has
 // width/height=0 when accordian-group is-open=false
 window.addEventListener('resize', function(event){
-   frameHeight=window.innerHeight;
-   frameWidth=window.innerWidth;
-window.console.log("ONSIZE:: ", frameWidth, ", ",frameHeight);
-   if(enableEmbedded) {
-     if(saveFirst) {
-       displayInitPlot();
-       saveFirst=false;
-       return;
-     }
-   }
-   resizePlots();
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(function() {
+    doResize(); 
+  }, 250);
 });
-
 }) // MAIN
+
+function doResize() {
+  frameHeight=window.innerHeight;
+  frameWidth=window.innerWidth;
+window.console.log("ONSIZE:: ", frameWidth, ", ",frameHeight);
+  if(enableEmbedded) {
+    if(saveFirst) {
+      displayInitPlot();
+       saveFirst=false;
+      return;
+    }
+  }
+  resizePlots();
+}
+
 
 // initial plot to display,
 // The first one, 3d and uses all the data

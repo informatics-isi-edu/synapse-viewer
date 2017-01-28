@@ -21,7 +21,7 @@ function plotsClick_btn() {
     } else {
       togglePlotHeat(0,'fire_3Dscatter');
       var btn = document.getElementById('plots-button');
-      btn.style.color = 'white';
+      btn.style.color = 'grey';
   }
 }
 

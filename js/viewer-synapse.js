@@ -287,6 +287,7 @@ function loadAndProcessCSVfromFiles(urls) {
 window.console.log("found a comment line..");
           data.splice(0,1);
         }
+/* -- skip this since the file got preprocessed
 // filter all rows with override not 7 
         {
           var cnt=data.length;
@@ -303,6 +304,7 @@ window.console.log("found a comment line..");
             }
           }
         }
+*/
 // convert X,Y,Z to micron world..
         convert2micron(data, i);
         initPlot_data.push(data);

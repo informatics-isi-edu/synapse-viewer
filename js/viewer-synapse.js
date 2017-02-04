@@ -200,7 +200,7 @@ function chopForStub(url){
 
 function markerSize(s) {
    if(initSize.length ==0 || initSize.length <= s ) {
-     return 4; 
+     return 2; 
    } else {
      return initSize[s];
    }

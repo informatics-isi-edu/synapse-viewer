@@ -378,12 +378,12 @@ function onTrace(plot_idx,data_idx) {
 }
 
 function addSubplots(plot_idx,keyX,keyY,keyZ, config, fwidth,fheight) {
-  var datalist=tmp[0];
-  var colorlist=tmp[1];
-  var namelist=tmp[2];
-  var sizelist=tmp[3];
-  var opacitylist=tmp[4];
-  var visiblelist=tmp[5];
+  var datalist=config[0];
+  var colorlist=config[1];
+  var namelist=config[2];
+  var sizelist=config[3];
+  var opacitylist=config[4];
+  var visiblelist=config[5];
    
   var _data=[];
   var cnt=datalist.length;

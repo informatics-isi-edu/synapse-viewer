@@ -14,7 +14,6 @@
 //  type: "subplots"
 
 var  initPlot_data=[]; // very first set of original data
-var  filteredPlot_data=[]; // filtered the content..
 var  initPlot_name; // original file stubs of the data files
 var  saveFirst=true;
 
@@ -85,8 +84,6 @@ window.console.log("READY:: ", frameWidth, ", ",frameHeight);
          return;
        var plist=setupPlotList(initPlot_name);
        setupDataList2Plots();
-//XXX, filter the initial data set here.. ie, override=7
-//XXX, collect and set the 'global information'
        } else {
          alertify.error("Usage: view.html?http://datapath/data.csv");
          return;

@@ -92,6 +92,9 @@ window.console.log("READY:: ", frameWidth, ", ",frameHeight);
 
   if(!enableEmbedded) {
     displayInitPlot();
+    if(!START_THREED) {
+       offThreeD();
+    }
   }
 
 
@@ -113,7 +116,7 @@ window.console.log("ONSIZE:: ", frameWidth, ", ",frameHeight);
   if(enableEmbedded) {
     if(saveFirst) {
       displayInitPlot();
-       saveFirst=false;
+      saveFirst=false;
       return;
     }
   }
@@ -167,6 +170,10 @@ function getDataWithTrackList(tlist) {
 function resizePlots() {
   var plot_idx=0;
   refreshPlot(plot_idx);
+if(HAS_SUBPLOTS) {
+  plot_idx=1;
+  refreshPlot(plot_idx);
+}
 }
 
 // This complete recompute the plot

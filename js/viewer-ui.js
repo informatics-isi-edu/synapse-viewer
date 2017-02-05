@@ -4,10 +4,15 @@
 // A flag to track whether plotly viewer is
 // being used inside another window (i.e. Chaise), set enableEmbedded.
 
-var HAS_SUBPLOTS=false;
+var START_THREED=true; // threeD one start with enabled mode
+var HAS_SUBPLOTS=false; // see if subplots needs to be made or not
+// 
 //   eye bars fire 'three D'
 //      eye data 
 //      eye data2
+//   eye bars 'subplot'
+//      dot data
+//      dot data2
 
 var enableEmbedded = false;
 if (window.self !== window.top) {
@@ -30,15 +35,23 @@ function getDataListForPlot(plot_idx) {
 function setupPlotList(dlist) {
   nameOfData=dlist;
 
+  if(moreThanOneData()) {
+    HAS_SUBPLOTS=true;
+    START_THREED=false; // by default, don't show if more than
+                        // one data files initially
+    // disable the heat/pullout mode
+    removePlotsClick_btn();
+  }
+
   nameOfPlot.push('3D scatter'); // selectable data
   trackingPlot[0]=true;
   trackingPlotHeat[0]=false;
- 
-if(HAS_SUBPLOTS) {
-  nameOfPlot.push('Subplots'); // not selectable data
-  trackingPlot[1]=true;
-  trackingPlotHeat[1]=false;
-}
+
+  if(HAS_SUBPLOTS) { 
+    nameOfPlot.push('Subplots'); // not selectable data
+    trackingPlot[1]=true;
+    trackingPlotHeat[1]=false;
+  }
   add2PlotList();
 }
 
@@ -55,6 +68,7 @@ function getPlotVisName(plot_idx) {
   var _visible_name=plot_idx+"_plot_visible";
   return _visible_name;
 }
+
 function getDataVisName(plot_idx, data_idx) {
   var _visible_name=plot_idx+"_"+data_idx+"_data_visible";
   return _visible_name;
@@ -82,7 +96,14 @@ window.console.log("trackingPlot..", trackingPlot.length);
   return false;
 }
 
+function isSubplot(plot_idx) {
+  if(plot_idx==1)
+    return true;  
+  return false;
+}
+
 // given a plot, expand the html structure
+// pname='subplot' or 'three D'
 function addPlot(plot_idx, pname) {
   var name = pname.replace(/ +/g, "");
   var _n=name;
@@ -92,6 +113,7 @@ function addPlot(plot_idx, pname) {
   var _body_name=plot_idx+"_plot_body";
   var _eye_name='eye_'+name;
   var _fire_name='fire_'+name;
+  var _mark_name='mark_'+name;
 
   var _nn='';
   _nn+='<div class="panel panel-default col-md-12">';
@@ -101,7 +123,8 @@ function addPlot(plot_idx, pname) {
 if(moreThanOnePlot()) {
   _nn+='<button id="'+_visible_name+'" class="pull-left"  style="display:inline-block;outline: none;border:none; background-color:white"  onClick="togglePlot('+plot_idx+',\''+_eye_name+'\')" title="hide or show plot"><span id="'+_eye_name+'" class="glyphicon glyphicon-eye-open" style="color:#337ab7;"></span> </button>';
 }
-// XXX subplots can not have heat option yet 
+  
+// XXX subplots can not have heat option 
 if(name != "Subplots") {
   _nn+='<button id="'+_heat_name+'" class="pull-left" style="margin-left: -5px;display:inline-block;outline: none;border:none; background-color:white"  onClick="togglePlotHeat('+plot_idx+',\''+_fire_name+'\')" title="toggle to heat scale"><span id="'+_fire_name+'" class="glyphicon glyphicon-fire" style="color:#337ab7;"></span> </button>';
 }
@@ -144,19 +167,20 @@ function setupDataList2Plots() {
 // for a particular plot, every plot has its own set of datalist structure
 function setupDataList(plot_idx, dlist) {
    var tmp='';
-// special case, if dlist.length == 0, might be using the
+// special case, if dlist.length == 1, might be using the
 // default color..
+/** ??? XXX not sure..
    if(dlist.length == 1) {
        var i=0;
        var dname=dlist[i];
        var h=add2DataList(plot_idx, i, dname, true);
        tmp += h;
    } else {
-     for( var i=0;i<dlist.length;i++) {
-       var dname=dlist[i];
-       var h=add2DataList(plot_idx, i, dname);
-       tmp += h;
-     }
+*/
+  for( var i=0;i<dlist.length;i++) {
+    var dname=dlist[i];
+    var h=add2DataList(plot_idx, i, dname);
+    tmp += h;
   }
   var _body_name=plot_idx+"_plot_body";
   var pname= '#'+_body_name;
@@ -164,11 +188,11 @@ function setupDataList(plot_idx, dlist) {
 window.console.log(tmp);
 }
 
-// each data entry has an eye
-// if selectable, then eye color match with the color list
-// if not selectable or no need for eye,
-//    set eye color to transparent???
-function add2DataList(plot_idx, data_idx,dname, special) {
+// each data entry has an eye, color match with the color list
+// if selectable, then tool tip shows up 
+// if not selectable, then no tooltip
+function add2DataList(plot_idx, data_idx,dname) {
+  var y=isSubplot(plot_idx);
   var name = dname.replace(/ +/g, "");
   var _eye_name="eye_"+name+plot_idx;
   var _eye_color=getMyColor(data_idx);
@@ -176,7 +200,11 @@ function add2DataList(plot_idx, data_idx,dname, special) {
   var _nn='';
   _nn+='<div class="row col-md-12">'; 
   _nn+='<div class="menuLabel">'+dname; 
+if(!y) {
   _nn+='<button id="'+_visible_name+'" class="pull-left"  style="display:inline-block;outline: none;border:none; background-color:white"  onClick="toggleDataByIdx('+plot_idx+','+data_idx+',\''+_eye_name+'\')" title="hide or show data"><span id="'+_eye_name+'" class="glyphicon glyphicon-eye-open" style="color:'+_eye_color+';"></span> </button>';
+} else {
+  _nn+='<button id="'+_visible_name+'" class="pull-left"  style="display:inline-block;outline: none;border:none; background-color:white" title="data shown"><span id="'+_eye_name+'" class="glyphicon glyphicon-asterisk" style="color:'+_eye_color+';"></span> </button>';
+}
   _nn+='</div> <!--menuLabel-->';
   _nn+='</div>';
   return _nn;
@@ -194,7 +222,7 @@ function isEmpty(obj) {
    id="0_plot_visible" onClick="togglePlot(0,'eye_3DScatter')"
    id="eye_3DScatter"
 */
-function removePlot(plot_idx) {
+function disablePlot(plot_idx) {
   trackingPlot[plot_idx]=false;
 //  window.console.log("P->",trackingPlot[plot_idx]);
   if(plot_idx == 0)
@@ -211,12 +239,18 @@ function enablePlot(plot_idx) {
     $('#myViewer_subplots').css('display','');
 }
 
+function offThreeD() {
+  var name='3Dscatter';
+  var plot_label='eye_'+name;
+  togglePlot(0, plot_label);
+}
+
 function togglePlot(plot_idx, plot_label) {
   var tmp='#'+plot_label;
   var eptr = $(tmp);
   if( eptr.hasClass('glyphicon-eye-open')) {
     eptr.removeClass('glyphicon-eye-open').addClass('glyphicon-eye-close');
-    removePlot(plot_idx);
+    disablePlot(plot_idx);
     } else {
       eptr.removeClass('glyphicon-eye-close').addClass('glyphicon-eye-open');
       enablePlot(plot_idx);
@@ -228,7 +262,7 @@ function togglePlot(plot_idx, plot_label) {
    id="0_plot_heat" onClick="togglePlotHeat(0,'fire_3DScatter')"
    id="fire_3DScatter"
 */
-function removePlotHeat(plot_idx) {
+function disablePlotHeat(plot_idx) {
   trackingPlotHeat[plot_idx]=false;
   refreshPlot(plot_idx);
 }
@@ -245,7 +279,7 @@ function togglePlotHeat(plot_idx, plot_label) {
     enablePlotHeat(plot_idx);
     } else {
       eptr.removeClass('glyphicon-cog').addClass('glyphicon-fire');
-      removePlotHeat(plot_idx);
+      disablePlotHeat(plot_idx);
   }
 }
 /*

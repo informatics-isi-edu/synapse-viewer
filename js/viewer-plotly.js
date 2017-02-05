@@ -211,7 +211,7 @@ aspects,width,height,ticks){
               },
 //      paper_bgcolor: '#eaeaea',
 paper_bgcolor:"rgb(31,31,31)",
-            plot_bgcolor:"rgb(31,31,31)",
+plot_bgcolor:"rgb(31,31,31)",
       showlegend: false,
       hovermode: 'closest',
       scene: {
@@ -267,7 +267,7 @@ function addThreeD(plot_idx,keyX,keyY,keyZ, config, fwidth, fheight) {
   if(_width < 400) {
     _nticks=5;
   }
-  var _layout=getScatter3DDefaultLayout(trimKey(keyX),trimKey(keyY),trimKey(keyZ),
+  var _layout=getScatter3DDefaultLayout(keyX,keyY,keyZ,
               saveRangeX, saveRangeY, saveRangeZ, _aspects, _width, _height, _nticks);
   var plot;
 // do not show mobar if the window is smaller than 400
@@ -376,7 +376,7 @@ function onTrace(plot_idx,data_idx) {
       addPlotlyTrace(plot,data_idx);
   }
 }
-
+// just two at a time..
 function addSubplots(plot_idx,keyX,keyY,keyZ, config, fwidth,fheight) {
   var datalist=config[0];
   var colorlist=config[1];
@@ -387,20 +387,25 @@ function addSubplots(plot_idx,keyX,keyY,keyZ, config, fwidth,fheight) {
    
   var _data=[];
   var cnt=datalist.length;
-  for( var i=0; i<cnt; i++) {
-     var sidx=i+1;
-     var slabel="scene"+sidx;
-     var tmp=getSubplotsAt(namelist[i], datalist[i], keyX, keyY, keyZ, colorlist[i], slabel);
-     _data.push(tmp);
-  }
-
+  var set=cnt/2;
   var _width=fwidth;
-  var _height=fheight;
-  var _layout=getSubplotsDefaultLayout(trimKey(keyX),trimKey(keyY),trimKey(keyZ),
-              saveRangeX, saveRangeY, saveRangeZ, _width, _height);
-  var plot=addAPlot(subplotsDivname,_data, _layout, _width, _height);
-  savePlot[1]=plot;
-  return plot;
+  var _height=fheight/set;
+
+  var _data;
+  for(var i=0; i<cnt;) {
+    _data=[];
+    var tmp=getSubplotsAt(namelist[i], datalist[i], keyX, keyY, keyZ, colorlist[i], "scene1");
+    _data.push(tmp);
+    i++;
+    tmp=getSubplotsAt(namelist[i], datalist[i], keyX, keyY, keyZ, colorlist[i], "scene2");
+    _data.push(tmp);
+    i++;
+    var _layout=getSubplotsDefaultLayout(keyX,keyY,keyZ,
+                saveRangeX, saveRangeY, saveRangeZ, _width, _height);
+    var plot=addAPlot(subplotsDivname,_data, _layout, _width, _height);
+    savePlot.push(plot);
+  }
+  return savePlot;
 }
 
 
@@ -432,16 +437,19 @@ function getSubplotsDefaultLayout(xkey,ykey,zkey,xrange,yrange,zrange,width,heig
             "showline": true,
             "linecolor": 'black',
             "linewidth": 2,
+            "gridcolor" : '#3C3C3C',
             "range": xrange };
     tmpy= { "title":ykey,
             "showline": true,
             "linecolor": 'black',
             "linewidth": 2,
+            "gridcolor" : '#3C3C3C',
             "range": yrange };
     tmpz= { "title":zkey,
             "showline": true,
             "linecolor": 'black',
             "linewidth": 2,
+            "gridcolor" : '#3C3C3C',
              "range": zrange };
     } else {
       tmpx= { "title":xkey };
@@ -451,7 +459,8 @@ function getSubplotsDefaultLayout(xkey,ykey,zkey,xrange,yrange,zrange,width,heig
   var p= {
       width: width,
       height: height,
-      paper_bgcolor: '#eaeaea',
+      paper_bgcolor:"rgb(31,31,31)",
+      plot_bgcolor:"rgb(31,31,31)",
       showlegend: false,
       hovermode: 'closest',
     scene1: {
@@ -459,65 +468,17 @@ function getSubplotsDefaultLayout(xkey,ykey,zkey,xrange,yrange,zrange,width,heig
         yaxis: tmpy,
         zaxis: tmpz,
         domain: {
-            x: [0.0,  0.25],
-            y: [0.5, 1.0]
+            x: [0.0,  0.5],
+            y: [0, 1]
         },},
     scene2: {
         xaxis: tmpx,
         yaxis: tmpy,
         zaxis: tmpz,
         domain: {
-            x: [0.25, 0.50],
-            y: [0.5, 1.0]
+            x: [0.5, 1.0],
+            y: [0, 1]
         }},
-     scene3: {
-        xaxis: tmpx,
-        yaxis: tmpy,
-        zaxis: tmpz,
-        domain: {
-            x: [0.50,  0.75],
-            y: [0.5, 1.0]
-        },},
-    scene4: {
-        xaxis: tmpx,
-        yaxis: tmpy,
-        zaxis: tmpz,
-        domain: {
-            x: [0.75, 1.0],
-            y: [0.5, 1.0]
-        },},
-    scene5: {
-        xaxis: tmpx,
-        yaxis: tmpy,
-        zaxis: tmpz,
-        domain: {
-            x: [0.0,  0.25],
-            y: [0.0, 0.5]
-        },},
-    scene5: {
-        xaxis: tmpx,
-        yaxis: tmpy,
-        zaxis: tmpz,
-        domain: {
-            x: [0.25, 0.50],
-            y: [0.0, 0.5]
-        }},
-     scene7: {
-        xaxis: tmpx,
-        yaxis: tmpy,
-        zaxis: tmpz,
-        domain: {
-            x: [0.50,  0.75],
-            y: [0.0, 0.5]
-        },},
-    scene8: {
-        xaxis: tmpx,
-        yaxis: tmpy,
-        zaxis: tmpz,
-        domain: {
-            x: [0.75, 1.0],
-            y: [0.0, 0.5]
-        },},
     margin: {
     l: 2,
     r: 2,
@@ -529,3 +490,4 @@ function getSubplotsDefaultLayout(xkey,ykey,zkey,xrange,yrange,zrange,width,heig
 //window.console.log(p);
   return p;
 }
+

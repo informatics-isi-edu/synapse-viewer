@@ -170,11 +170,6 @@ function getOriginalDataByKey(data,key) {
    return alist;
 }
 
-// holding an option to alter the key
-function trimKey(key) {
-   return key;
-}
-
 function trimQ(alias) {
   var str=alias.trim(); // trim the ' or "
   if( (str[0] == "\"" && str[ str.length-1 ] == "\"")

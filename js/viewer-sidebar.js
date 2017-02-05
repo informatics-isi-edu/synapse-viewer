@@ -11,6 +11,12 @@ function dissmissPlots() {
   else plotsClick();
 }
 
+function removePlotsClick_btn()
+{
+  var btn = document.getElementById('plots-button');
+  btn.style.opacity =0;
+}
+
 function plotsClick_btn() {
   using_button=true;
   plots_sidebar = !plots_sidebar;

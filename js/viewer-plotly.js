@@ -218,7 +218,7 @@ plot_bgcolor:"rgb(31,31,31)",
         xaxis: tmpx,
         yaxis: tmpy,
         zaxis: tmpz,
-        aspectratio : { x:1, y:1, z:1 },
+//        aspectratio : { x:1, y:1, z:1 },
         camera : { eye:{x:1.3,y:1.3,z:1.3},
                    up: {x:0,y:0,z:1},
                    center: {x:0,y:0,z:0}}

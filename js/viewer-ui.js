@@ -4,6 +4,7 @@
 // A flag to track whether plotly viewer is
 // being used inside another window (i.e. Chaise), set enableEmbedded.
 
+var DEBUG=false;
 var START_THREED=true; // threeD one start with enabled mode
 var HAS_SUBPLOTS=false; // see if subplots needs to be made or not
 // 
@@ -40,7 +41,9 @@ function setupPlotList(dlist) {
     START_THREED=false; // by default, don't show if more than
                         // one data files initially
     // disable the heat/pullout mode
-    removePlotsClick_btn();
+    if(!DEBUG) {
+      removePlotsClick_btn();
+    }
   }
 
   nameOfPlot.push('3D scatter'); // selectable data

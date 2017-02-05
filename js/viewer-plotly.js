@@ -218,8 +218,7 @@ plot_bgcolor:"rgb(31,31,31)",
         xaxis: tmpx,
         yaxis: tmpy,
         zaxis: tmpz,
-//        aspectratio : { x:1, y:1, z:1 },
-// XXX        aspectratio : { x:aspects[0], y:aspects[1], z:aspects[2] },
+        aspectratio : { x:1, y:1, z:1 },
         camera : { eye:{x:1.3,y:1.3,z:1.3},
                    up: {x:0,y:0,z:1},
                    center: {x:0,y:0,z:0}}
@@ -413,7 +412,7 @@ function getSubplotsAt(fname,data,xkey, ykey, zkey, mcolor, slabel) {
   var x=getOriginalDataByKey(data,xkey);
   var y=getOriginalDataByKey(data,ykey);
   var z=getOriginalDataByKey(data,zkey);
-   var data= { name: fname,
+  var data= { name: fname,
                x: x,
                y: y,
                z: z,
@@ -467,17 +466,27 @@ function getSubplotsDefaultLayout(xkey,ykey,zkey,xrange,yrange,zrange,width,heig
         xaxis: tmpx,
         yaxis: tmpy,
         zaxis: tmpz,
+        aspectratio : { x:1, y:1, z:1 },
+        camera : { eye:{x:1.3,y:1.3,z:1.3},
+                   up: {x:0,y:0,z:1},
+                   center: {x:0,y:0,z:0}},
         domain: {
             x: [0.0,  0.5],
-            y: [0, 1]
+            y: [0, 1],
+            z: [0, 1],
         },},
     scene2: {
         xaxis: tmpx,
         yaxis: tmpy,
         zaxis: tmpz,
+        aspectratio : { x:1, y:1, z:1 },
+        camera : { eye:{x:1.3,y:1.3,z:1.3},
+                   up: {x:0,y:0,z:1},
+                   center: {x:0,y:0,z:0}},
         domain: {
             x: [0.5, 1.0],
-            y: [0, 1]
+            y: [0, 1],
+            z: [0, 1]
         }},
     margin: {
     l: 2,

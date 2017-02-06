@@ -75,6 +75,28 @@ function getMinMax(datalist) {
   return [[_minX,_maxX], [_minY,_maxY], [_minZ,_maxZ]]; 
 }
 
+// for range 1:100, 1:100, 1:20, ratio is 1,1,0.2
+//http://stackoverflow.com/questions/37032687/plotly-3d-surface-change-cube-to-rectangular-space
+// very hacky!! assume all started at 0s
+function getLayoutAspectratio(ranges) {
+// X,Y,Z 
+  var _x=ranges[0][1];
+  var _y=ranges[1][1];
+  var _z=ranges[2][1];
+  var _max=Math.max.apply(Math,[_x,_y,_z]);
+window.console.log(_x);
+window.console.log(_y);
+window.console.log(_z);
+window.console.log(_max);
+
+  _x=_x/_max;
+  _y=_y/_max;
+  _z=_z/_max;
+  
+  var r={ x:_x, y:_y, z:_z };
+  return r;
+}
+
 // get min max of a plotly data
 function getMinMaxOfPlotlyData(pdata) {
   var tmp=pdata['x'];
@@ -219,7 +241,6 @@ plot_bgcolor:"rgb(31,31,31)",
         yaxis: tmpy,
         zaxis: tmpz,
         aspectmode: "data",
-//        aspectratio : { x:1, y:1, z:1 },
         camera : { eye:{x:1.3,y:1.3,z:1.3},
                    up: {x:0,y:0,z:1},
                    center: {x:0,y:0,z:0}}
@@ -403,10 +424,24 @@ function addSubplots(plot_idx,keyX,keyY,keyZ, config, fwidth,fheight) {
     var _layout=getSubplotsDefaultLayout(keyX,keyY,keyZ,
                 saveRangeX, saveRangeY, saveRangeZ, _width, _height);
     var plot=addAPlot(subplotsDivname,_data, _layout, _width, _height);
+{
 var ratio1=plot.layout.scene.aspectratio;
 window.console.log("ratio1 :",ratio1);
 var ratio2=plot.layout.scene2.aspectratio;
 window.console.log("ratio2 :",ratio2);
+var xrange=plot.layout.scene.xaxis.range;
+window.console.log("scene xrange :", xrange);
+var yrange=plot.layout.scene.yaxis.range;
+window.console.log("scene yrange :", yrange);
+var zrange=plot.layout.scene.zaxis.range;
+window.console.log("scene zrange :", zrange);
+var xrange=plot.layout.scene2.xaxis.range;
+window.console.log("scene2 xrange :", xrange);
+var yrange=plot.layout.scene2.yaxis.range;
+window.console.log("scene2 yrange :", yrange);
+var zrange=plot.layout.scene2.zaxis.range;
+window.console.log("scene2 zrange :", zrange);
+}
     savePlot.push(plot);
   }
   return savePlot;
@@ -425,8 +460,8 @@ function getSubplotsAt(fname,data,xkey, ykey, zkey, mcolor, slabel) {
                mode: "markers",
                marker: {
                    color: mcolor,
-                   size: 3,
-                   line: {color: "black", width: 0.5},
+                   size: 1,
+//                   line: {color: "black", width: 0.5},
                    opacity: 1 
                },
                type:"scatter3d" };
@@ -435,6 +470,8 @@ function getSubplotsAt(fname,data,xkey, ykey, zkey, mcolor, slabel) {
 
 function getSubplotsDefaultLayout(xkey,ykey,zkey,xrange,yrange,zrange,width,height){
   var tmpx, tmpy, tmpz;
+  var _aspectratio=getLayoutAspectratio([ xrange, yrange, zrange]);
+window.console.log("calc aspectratio..",_aspectratio);
   if(xrange && yrange && zrange) {
 window.console.log("xrange ",xrange);
 window.console.log("yrange ",yrange);
@@ -474,34 +511,31 @@ window.console.log("zrange ",zrange);
         xaxis: tmpx,
         yaxis: tmpy,
         zaxis: tmpz,
-//        aspectmode: "data",
 // data range, x 3.64,138.32/y 3.9,136.5/z 4.8,58
 // plotly's dataScale, 0.0074, 0.0075, 0.01879
 // aspect ratio from plotly
 // 1.3, 1.3, 0.539
 // 1.2, 1.19, 0.699
-//        aspectratio : { x:1, y:1, z:0.45 },
-        camera : { eye:{x:1.3,y:1.3,z:1.3},
+        aspectratio : _aspectratio,
+        camera : { eye:{x:1,y:1,z:1},
                    up: {x:0,y:0,z:1},
                    center: {x:0,y:0,z:0}},
         domain: {
             x: [0.0,  0.5],
-            y: [0, 1],
-            z: [0, 1],
+            y: [0, 1]
         },},
     scene2: {
         xaxis: tmpx,
         yaxis: tmpy,
         zaxis: tmpz,
-//        aspectmode: "data",
-//        aspectratio : { x:1, y:1, z:0.45 },
-        camera : { eye:{x:1.3,y:1.3,z:1.3},
+//        aspectratio : { x:1, y:1, z:0.43 },
+        aspectratio : _aspectratio,
+        camera : { eye:{x:1,y:1,z:1},
                    up: {x:0,y:0,z:1},
                    center: {x:0,y:0,z:0}},
         domain: {
             x: [0.5, 1.0],
-            y: [0, 1],
-            z: [0, 1]
+            y: [0, 1]
         }},
     margin: {
     l: 2,

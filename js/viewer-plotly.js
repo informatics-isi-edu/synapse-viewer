@@ -218,6 +218,7 @@ plot_bgcolor:"rgb(31,31,31)",
         xaxis: tmpx,
         yaxis: tmpy,
         zaxis: tmpz,
+        aspectmode: "data",
 //        aspectratio : { x:1, y:1, z:1 },
         camera : { eye:{x:1.3,y:1.3,z:1.3},
                    up: {x:0,y:0,z:1},
@@ -393,7 +394,7 @@ function addSubplots(plot_idx,keyX,keyY,keyZ, config, fwidth,fheight) {
   var _data;
   for(var i=0; i<cnt;) {
     _data=[];
-    var tmp=getSubplotsAt(namelist[i], datalist[i], keyX, keyY, keyZ, colorlist[i], "scene1");
+    var tmp=getSubplotsAt(namelist[i], datalist[i], keyX, keyY, keyZ, colorlist[i], "scene");
     _data.push(tmp);
     i++;
     tmp=getSubplotsAt(namelist[i], datalist[i], keyX, keyY, keyZ, colorlist[i], "scene2");
@@ -402,6 +403,10 @@ function addSubplots(plot_idx,keyX,keyY,keyZ, config, fwidth,fheight) {
     var _layout=getSubplotsDefaultLayout(keyX,keyY,keyZ,
                 saveRangeX, saveRangeY, saveRangeZ, _width, _height);
     var plot=addAPlot(subplotsDivname,_data, _layout, _width, _height);
+var ratio1=plot.layout.scene.aspectratio;
+window.console.log("ratio1 :",ratio1);
+var ratio2=plot.layout.scene2.aspectratio;
+window.console.log("ratio2 :",ratio2);
     savePlot.push(plot);
   }
   return savePlot;
@@ -431,6 +436,9 @@ function getSubplotsAt(fname,data,xkey, ykey, zkey, mcolor, slabel) {
 function getSubplotsDefaultLayout(xkey,ykey,zkey,xrange,yrange,zrange,width,height){
   var tmpx, tmpy, tmpz;
   if(xrange && yrange && zrange) {
+window.console.log("xrange ",xrange);
+window.console.log("yrange ",yrange);
+window.console.log("zrange ",zrange);
     tmpx= { "title":xkey, 
 //'#636363',
             "showline": true,
@@ -462,11 +470,17 @@ function getSubplotsDefaultLayout(xkey,ykey,zkey,xrange,yrange,zrange,width,heig
       plot_bgcolor:"rgb(31,31,31)",
       showlegend: false,
       hovermode: 'closest',
-    scene1: {
+    scene: {
         xaxis: tmpx,
         yaxis: tmpy,
         zaxis: tmpz,
-        aspectratio : { x:1, y:1, z:1 },
+//        aspectmode: "data",
+// data range, x 3.64,138.32/y 3.9,136.5/z 4.8,58
+// plotly's dataScale, 0.0074, 0.0075, 0.01879
+// aspect ratio from plotly
+// 1.3, 1.3, 0.539
+// 1.2, 1.19, 0.699
+//        aspectratio : { x:1, y:1, z:0.45 },
         camera : { eye:{x:1.3,y:1.3,z:1.3},
                    up: {x:0,y:0,z:1},
                    center: {x:0,y:0,z:0}},
@@ -479,7 +493,8 @@ function getSubplotsDefaultLayout(xkey,ykey,zkey,xrange,yrange,zrange,width,heig
         xaxis: tmpx,
         yaxis: tmpy,
         zaxis: tmpz,
-        aspectratio : { x:1, y:1, z:1 },
+//        aspectmode: "data",
+//        aspectratio : { x:1, y:1, z:0.45 },
         camera : { eye:{x:1.3,y:1.3,z:1.3},
                    up: {x:0,y:0,z:1},
                    center: {x:0,y:0,z:0}},

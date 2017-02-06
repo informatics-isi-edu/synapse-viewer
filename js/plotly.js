@@ -74460,6 +74460,9 @@ proto.plot = function(sceneData, fullLayout, layout) {
         axesScaleRatio[i] = Math.pow(axisRatio.acc, 1.0/axisRatio.count) / dataScale[i];
     }
 
+//XXX
+window.console.log("axisRatio..",axisRatio);
+window.console.log("computed axeScaleRatio..",axesScaleRatio);
     /*
      * Dynamically set the aspect ratio depending on the users aspect settings
      */

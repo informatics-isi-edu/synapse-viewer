@@ -75,6 +75,18 @@ function getMinMax(datalist) {
   return [[_minX,_maxX], [_minY,_maxY], [_minZ,_maxZ]]; 
 }
 
+function getOverallMinMax(ranges) {
+  var _x=ranges[0][1];
+  var _y=ranges[1][1];
+  var _z=ranges[2][1];
+  var _max=Math.max.apply(Math,[_x,_y,_z]);
+  var _x=ranges[0][0];
+  var _y=ranges[1][0];
+  var _z=ranges[2][0];
+  var _min=Math.min.apply(Math,[_x,_y,_z]);
+  return [_min,_max];
+}
+
 // for range 1:100, 1:100, 1:20, ratio is 1,1,0.2
 //http://stackoverflow.com/questions/37032687/plotly-3d-surface-change-cube-to-rectangular-space
 // very hacky!! assume all started at 0s
@@ -191,6 +203,7 @@ function getScatter3DAt_heat(fname,datalist,xkey, ykey, zkey, heatkey, visibleli
 
 function getScatter3DDefaultLayout(xkey,ykey,zkey,xrange,yrange,zrange,
 aspects,width,height,ticks){
+  var mrange=getOverallMinMax([xrange, yrange, zrange]);
   var tmpx, tmpy, tmpz;
   if(xrange && yrange && zrange) {
     tmpx= { "title":xkey, 
@@ -198,7 +211,7 @@ aspects,width,height,ticks){
             "ticks":"inside",
             "linecolor": 'black',
             "nticks": ticks,
-            "range" : xrange,
+            "range" : mrange,
             "gridcolor" : '#3C3C3C',
             "linewidth": 3};
     tmpy= { "title":ykey,
@@ -206,7 +219,7 @@ aspects,width,height,ticks){
             "ticks":"inside",
             "linecolor": 'black',
             "nticks": ticks,
-            "range" : yrange,
+            "range" : mrange,
             "gridcolor" : '#3C3C3C',
             "linewidth": 3};
     tmpz= { "title":zkey,
@@ -214,7 +227,7 @@ aspects,width,height,ticks){
             "ticks":"inside",
             "linecolor": 'black',
             "nticks": ticks,
-            "range" : zrange,
+            "range" : mrange,
             "gridcolor" : '#3C3C3C',
             "linewidth": 3};
     } else {
@@ -240,7 +253,8 @@ plot_bgcolor:"rgb(31,31,31)",
         xaxis: tmpx,
         yaxis: tmpy,
         zaxis: tmpz,
-        aspectmode: "data",
+//        aspectmode: "data",
+        aspectratio: {x:1,y:1,z:1},
         camera : { eye:{x:1.3,y:1.3,z:1.3},
                    up: {x:0,y:0,z:1},
                    center: {x:0,y:0,z:0}}
@@ -470,31 +484,30 @@ function getSubplotsAt(fname,data,xkey, ykey, zkey, mcolor, slabel) {
 
 function getSubplotsDefaultLayout(xkey,ykey,zkey,xrange,yrange,zrange,width,height){
   var tmpx, tmpy, tmpz;
-  var _aspectratio=getLayoutAspectratio([ xrange, yrange, zrange]);
-window.console.log("calc aspectratio..",_aspectratio);
   if(xrange && yrange && zrange) {
-window.console.log("xrange ",xrange);
-window.console.log("yrange ",yrange);
-window.console.log("zrange ",zrange);
+  var mrange=getOverallMinMax([xrange, yrange, zrange]);
+//  var _aspectratio=getLayoutAspectratio([ xrange, yrange, zrange]);
+  var _aspectratio={ x:1, y:1, z:1 };
+window.console.log("calc aspectratio..",_aspectratio);
     tmpx= { "title":xkey, 
 //'#636363',
             "showline": true,
             "linecolor": 'black',
             "linewidth": 2,
             "gridcolor" : '#3C3C3C',
-            "range": xrange };
+            "range": mrange };
     tmpy= { "title":ykey,
             "showline": true,
             "linecolor": 'black',
             "linewidth": 2,
             "gridcolor" : '#3C3C3C',
-            "range": yrange };
+            "range": mrange };
     tmpz= { "title":zkey,
             "showline": true,
             "linecolor": 'black',
             "linewidth": 2,
             "gridcolor" : '#3C3C3C',
-             "range": zrange };
+             "range": mrange };
     } else {
       tmpx= { "title":xkey };
       tmpy= { "title":ykey };

@@ -258,6 +258,27 @@ function convert2micron(data, s) {
   }
 }
 
+function translate2Center(data) {
+  var xlist=data.map(function(k) { return k['X']; } );
+  var _maxX=Math.max.apply(Math,xlist);
+  var _minX=Math.min.apply(Math,xlist);
+  var _spanX=(_maxX - _minX)/2 + _minX;
+  var ylist=data.map(function(k) { return k['Y']; } );
+  var _maxY=Math.max.apply(Math,ylist);
+  var _minY=Math.min.apply(Math,ylist);
+  var _spanY=(_maxY - _minY)/2 + _minY;
+  var zlist=data.map(function(k) { return k['Z']; } );
+  var _maxZ=Math.max.apply(Math,zlist);
+  var _minZ=Math.min.apply(Math,zlist);
+  var _spanZ=(_maxZ - _minZ)/2 + _minZ;
+  var cnt=data.length;
+  for(var i=0; i<cnt; i++) {
+    data[i]['X']= data[i]['X'] - _spanX;
+    data[i]['Y']= data[i]['Y'] - _spanY;
+    data[i]['Z']= data[i]['Z'] - _spanZ;
+  }
+}
+
 function getMyColor(i) {
   return myColor[i];
 }
@@ -302,6 +323,7 @@ window.console.log("found a comment line..");
 */
 // convert X,Y,Z to micron world..
         convert2micron(data, i);
+        translate2Center(data);
         initPlot_data.push(data);
       });
       var color=getDefaultColor(i);

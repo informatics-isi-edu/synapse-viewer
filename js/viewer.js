@@ -186,7 +186,7 @@ function refreshPlot(plot_idx) {
     case '3D scatter' :
       $(scatterDivname).empty();
       var config=getDataWithTrackList(tlist); 
-      addThreeD(plot_idx,'X','Y','Z', config, frameWidth-5, frameHeight-5);
+      addThreeD(plot_idx,'X','Y','Z', config, frameWidth-5, frameHeight-5, initTitle[0]);
       break;
     case 'Subplots' :
       $(subplotsDivname).empty();

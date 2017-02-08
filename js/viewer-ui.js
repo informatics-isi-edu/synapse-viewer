@@ -40,10 +40,10 @@ function setupPlotList(dlist) {
     HAS_SUBPLOTS=true;
     START_THREED=false; // by default, don't show if more than
                         // one data files initially
-    // disable the heat/pullout mode
-    if(!DEBUG) {
-      removePlotsClick_btn();
-    }
+  }
+  // disable the heat/pullout mode
+  if(!DEBUG) {
+    removePlotsClick_btn();
   }
 
   nameOfPlot.push('3D scatter'); // selectable data

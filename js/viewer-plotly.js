@@ -100,11 +100,6 @@ function getLayoutAspectratio(ranges) {
   var _y=ranges[1][1];
   var _z=ranges[2][1];
   var _max=Math.max.apply(Math,[_x,_y,_z]);
-window.console.log(_x);
-window.console.log(_y);
-window.console.log(_z);
-window.console.log(_max);
-
   _x=_x/_max;
   _y=_y/_max;
   _z=_z/_max;
@@ -198,7 +193,7 @@ function getScatter3DAt_heat(fname,datalist,xkey, ykey, zkey, heatkey, visibleli
                    colorbar: {
                           thickness: _thickness,
                           title:heatkey,
-                          xpad:heatxpad,
+                          xpad:heatxpad
                              },
                    opacity: 1 
                },
@@ -206,7 +201,7 @@ function getScatter3DAt_heat(fname,datalist,xkey, ykey, zkey, heatkey, visibleli
    return data;
 }
 
-function getScatter3DDefaultLayout(xkey,ykey,zkey,xrange,yrange,zrange,width,height,ticks){
+function getScatter3DDefaultLayout(xkey,ykey,zkey,xrange,yrange,zrange,width,height,ticks, title){
   var mrange=getOverallMinMax([xrange, yrange, zrange]);
   var tmpx, tmpy, tmpz;
 window.console.log("mrange is..",mrange);
@@ -243,11 +238,24 @@ window.console.log("mrange is..",mrange);
   var p= {
       width: width, 
       height: height,
+      annotations: [
+        {
+          x: 0.5,
+          y: 0.9,
+          font: {size: 16, color: '#666666'},
+          showarrow: false,
+          text: title,
+          xanchor: 'center',
+          xref: 'paper',
+          yanchor: 'bottom',
+          yref: 'paper'
+        }],
+//      title: title,
       margin: {
-              l:10,
-              r:10,
-              b:10,
-              t:10, 
+              l: 10,
+              r: 10,
+              b: 10,
+              t: 10,
               },
 //      paper_bgcolor: '#eaeaea',
 paper_bgcolor:"rgb(31,31,31)",
@@ -273,13 +281,14 @@ window.console.log(p);
 // trace to be invisible
 // the heat version is just to rebuilt the whole set from 
 // scratch
-function addThreeD(plot_idx,keyX,keyY,keyZ, config, fwidth, fheight) {
+function addThreeD(plot_idx,keyX,keyY,keyZ, config, fwidth, fheight, title) {
   var datalist=config[0];
   var colorlist=config[1];
   var namelist=config[2];
   var sizelist=config[3];
   var opacitylist=config[4];
   var visiblelist=config[5];
+  var aliaslist=config[6];
    
   var _data=[];
   var _width=fwidth;
@@ -309,8 +318,10 @@ function addThreeD(plot_idx,keyX,keyY,keyZ, config, fwidth, fheight) {
   if(_width < 400) {
     _nticks=5;
   }
+  // special case, 
   var _layout=getScatter3DDefaultLayout(keyX,keyY,keyZ,
-              saveRangeX, saveRangeY, saveRangeZ, _width, _height, _nticks);
+              saveRangeX, saveRangeY, saveRangeZ, 
+              _width, _height, _nticks, title);
   var plot;
 // do not show mobar if the window is smaller than 400
   if(_width > 400)
@@ -580,18 +591,27 @@ window.console.log("calc aspectratio..",_aspectratio);
   return p;
 }
 
+var inZoom=false;
 /************ZOOM**********************************/
 function setupZoom(plot, set) {
   plot.on('plotly_relayout',
     function(eventdata){  
-        var _edata=eventdata;
-        var _estr=JSON.stringify(eventdata);
-window.console.log(_estr);
-        var _eye=_edata['scene2']['eye'];
-        alert( 'ZOOM!' + ' ' +set+ '\n\n' +
-            'Event data:' + '\n' +  
-             JSON.stringify(_eye));
-//             JSON.stringify(eventdata));
+        if(inZoom) return;
+        inZoom=true;
+        var update;
+        var _tmp=eventdata['scene'];
+        if(_tmp == null) {
+           _tmp=eventdata['scene2'];
+           update= { 'scene': _tmp };
+           } else {
+            update= { 'scene2': _tmp };
+        }
+        
+        Plotly.relayout(plot, {update});
+        inZoom=false;
+window.console.log('ZOOM', JSON.stringify(_tmp));
+//        var _eye=_tmp['eye'];
+//        alertify.error( 'ZOOM! Event data:'+ JSON.stringify(_eye));
     });
 }
 /************ANIMATION**********************************/

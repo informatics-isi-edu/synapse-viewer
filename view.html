@@ -23,7 +23,7 @@
 <link href="css/viewer.css" rel="stylesheet">
 <link href="css/viewer_sidebar.css" rel="stylesheet">
 <link href="css/viewer_plots.css" rel="stylesheet">
-<script type='text/javascript' src='js/plotly.js'></script>
+<script type='text/javascript' src='js/plotly.min.js'></script>
 <script type='text/javascript' src='js/viewer-sidebar.js'></script>
 <script type='text/javascript' src='js/viewer-synapse.js'></script>
 <script type='text/javascript' src='js/viewer-ui.js'></script>
@@ -51,11 +51,16 @@
 </ul>
 </div><!-- controlBlock -->
 <div class="row col-md-1">
-  <button id="plots-button" type="button" class="row btn-sm" style="background-color:transparent; border:none; color:grey" onclick="plotsClick_btn()">
+<!--
+  <button id="plots-button" type="button" class="row btn-sm" style="background-color:transparent; border:none; color:grey" title='on show' onclick="updateAnimate()">
+    <span class="glyphicon glyphicon-fire"></span>
+  </button>
+-->
+  <button id="plots-button" type="button" class="row btn-sm" style="background-color:transparent; border:none; color:grey" title='toggle for heat' onclick="plotsClick_btn()">
     <span class="glyphicon glyphicon-fire"></span>
   </button>
 <!--
-  <button id="plots-button" type="button" class="row btn-sm" style="background-color:transparent;border:none; color:white" onclick="plotsClick()">
+  <button id="plots-button" type="button" class="row btn-sm" style="background-color:transparent;border:none; color:white" title='pull-out'  onclick="plotsClick()">
     <span class="glyphicon glyphicon-menu-right"></span>
   </button>
 -->

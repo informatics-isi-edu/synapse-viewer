@@ -150,6 +150,7 @@ function getDataWithTrackList(tlist) {
    var slist=[]; // marker size list
    var olist=[]; // marker opacity list
    var vlist=[]; // trace visible list
+   var alist=[]; // alias list for plots
    var cnt=Object.keys(tlist).length;
    for(var i=0;i<cnt; i++) {
      dlist.push(initPlot_data[i]);
@@ -157,13 +158,14 @@ function getDataWithTrackList(tlist) {
      nlist.push(initPlot_name[i]);
      slist.push(markerSize(i));
      olist.push(markerOpacity(i));
+     alist.push(initAlias[i]);
      if(tlist[i]) {
        vlist.push(true);
        } else {
          vlist.push(false);
      }
    }
-   return [dlist, clist, nlist, slist, olist, vlist];
+   return [dlist, clist, nlist, slist, olist, vlist, alist];
 }
 
 // could add code for restyle if really needs to

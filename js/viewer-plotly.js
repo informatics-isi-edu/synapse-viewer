@@ -1,9 +1,11 @@
 //
 // synapse-viewer
 //
-var savePlot=[]; // first one is threeD, 2nd is subplots
+var saveThreeD; // first one is threeD, 2nd is subplots
+var saveSubplots=[];
 
 function addAPlot(divname, data, layout, w, h, mode) {
+window.console.log("calling addAPlot..");
   var d3 = Plotly.d3;
   var gd3 = d3.select(divname)
     .append('div')
@@ -13,8 +15,10 @@ function addAPlot(divname, data, layout, w, h, mode) {
         visibility: 'inherit'
     });
 
+  var config={displayModeBar: mode};
+
   var gd = gd3.node();
-  Plotly.newPlot(gd, data, layout, {displayModeBar: mode});
+  Plotly.newPlot(gd, data, layout, config);
   return gd;
 }
 
@@ -156,7 +160,7 @@ function getScatter3DAt_set(fname,data,xkey, ykey, zkey, sz, op, mcolor,vis) {
 
 // combine all the data into a single trace before drawing it
 // fix the marker size and also the opacity
-function getScatter3DAt_heat(fname,datalist,xkey, ykey, zkey, heatkey, visiblelist, _thickness) {
+function getScatter3DAt_heat(fname,datalist,xkey, ykey, zkey, heatkey, visiblelist, _thickness, heatxpad) {
   var cnt=datalist.length;
   var d;
   var x=[];
@@ -193,7 +197,8 @@ function getScatter3DAt_heat(fname,datalist,xkey, ykey, zkey, heatkey, visibleli
                    cmin:cmin,
                    colorbar: {
                           thickness: _thickness,
-                          title:heatkey
+                          title:heatkey,
+                          xpad:heatxpad,
                              },
                    opacity: 1 
                },
@@ -201,10 +206,10 @@ function getScatter3DAt_heat(fname,datalist,xkey, ykey, zkey, heatkey, visibleli
    return data;
 }
 
-function getScatter3DDefaultLayout(xkey,ykey,zkey,xrange,yrange,zrange,
-aspects,width,height,ticks){
+function getScatter3DDefaultLayout(xkey,ykey,zkey,xrange,yrange,zrange,width,height,ticks){
   var mrange=getOverallMinMax([xrange, yrange, zrange]);
   var tmpx, tmpy, tmpz;
+window.console.log("mrange is..",mrange);
   if(xrange && yrange && zrange) {
     tmpx= { "title":xkey, 
             "showline": true,
@@ -253,9 +258,9 @@ plot_bgcolor:"rgb(31,31,31)",
         xaxis: tmpx,
         yaxis: tmpy,
         zaxis: tmpz,
-//        aspectmode: "data",
         aspectratio: {x:1,y:1,z:1},
         camera : { eye:{x:1.3,y:1.3,z:1.3},
+//        camera : { eye:{x:0.5,y:0.5,z:1.3},
                    up: {x:0,y:0,z:1},
                    center: {x:0,y:0,z:0}}
       }
@@ -283,11 +288,14 @@ function addThreeD(plot_idx,keyX,keyY,keyZ, config, fwidth, fheight) {
 // special case..
   if(useHeat(plot_idx)) {
     var thickness=30; // default
-    if(_width < 400)
+    var heatxpad=10;
+    if(_width < 400) {
       thickness=10;
+      heatxpad=0;
+    }
   
     var tmp=getScatter3DAt_heat(namelist, datalist, keyX, keyY, keyZ,
-                   useHeatTerm(0),visiblelist, thickness);
+                   useHeatTerm(0),visiblelist, thickness, heatxpad);
     _data.push(tmp);
     } else {
     for( var i=0; i<cnt; i++) {
@@ -297,13 +305,12 @@ function addThreeD(plot_idx,keyX,keyY,keyZ, config, fwidth, fheight) {
     }
   }
 
-  var _aspects=polishAspects(0); // use the first one
   var _nticks=0; // default is 0-(don't care)
   if(_width < 400) {
     _nticks=5;
   }
   var _layout=getScatter3DDefaultLayout(keyX,keyY,keyZ,
-              saveRangeX, saveRangeY, saveRangeZ, _aspects, _width, _height, _nticks);
+              saveRangeX, saveRangeY, saveRangeZ, _width, _height, _nticks);
   var plot;
 // do not show mobar if the window is smaller than 400
   if(_width > 400)
@@ -311,7 +318,7 @@ function addThreeD(plot_idx,keyX,keyY,keyZ, config, fwidth, fheight) {
     else
       plot=addAPlot(scatterDivname,_data, _layout, _width, _height, false);
 
-  savePlot[0]=plot;
+  saveThreeD=plot;
   return plot;
 }
 
@@ -394,21 +401,19 @@ function getTraceIdxFromPlotLarger(plot, data_idx) {
 // on/off 
 function offTrace(plot_idx,data_idx) {
   if(plot_idx ==0) { // it is the threeD plot  
-    var plot=savePlot[0];
+    var plot=saveThreeD;
     removePlotlyTrace(plot,data_idx);
     } else {
-      var plot=savePlot[1];
-      removePlotlyTrace(plot,data_idx);
+// can not remove traces on subplots
   }
 }
 // on/off 
 function onTrace(plot_idx,data_idx) {
   if(plot_idx ==0) { // it is the threeD plot  
-    var plot=savePlot[0];
+    var plot=saveThreeD;
     addPlotlyTrace(plot,data_idx);
     } else {
-      var plot=savePlot[1];
-      addPlotlyTrace(plot,data_idx);
+// can not add traces on subplots
   }
 }
 // just two at a time..
@@ -419,6 +424,7 @@ function addSubplots(plot_idx,keyX,keyY,keyZ, config, fwidth,fheight) {
   var sizelist=config[3];
   var opacitylist=config[4];
   var visiblelist=config[5];
+  var aliaslist=config[6];
    
   var _data=[];
   var cnt=datalist.length;
@@ -431,34 +437,23 @@ function addSubplots(plot_idx,keyX,keyY,keyZ, config, fwidth,fheight) {
     _data=[];
     var tmp=getSubplotsAt(namelist[i], datalist[i], keyX, keyY, keyZ, colorlist[i], "scene");
     _data.push(tmp);
+    var title1=aliaslist[i];
     i++;
     tmp=getSubplotsAt(namelist[i], datalist[i], keyX, keyY, keyZ, colorlist[i], "scene2");
     _data.push(tmp);
+    var title2=aliaslist[i];
     i++;
     var _layout=getSubplotsDefaultLayout(keyX,keyY,keyZ,
-                saveRangeX, saveRangeY, saveRangeZ, _width, _height);
-    var plot=addAPlot(subplotsDivname,_data, _layout, _width, _height);
-{
-var ratio1=plot.layout.scene.aspectratio;
-window.console.log("ratio1 :",ratio1);
-var ratio2=plot.layout.scene2.aspectratio;
-window.console.log("ratio2 :",ratio2);
-var xrange=plot.layout.scene.xaxis.range;
-window.console.log("scene xrange :", xrange);
-var yrange=plot.layout.scene.yaxis.range;
-window.console.log("scene yrange :", yrange);
-var zrange=plot.layout.scene.zaxis.range;
-window.console.log("scene zrange :", zrange);
-var xrange=plot.layout.scene2.xaxis.range;
-window.console.log("scene2 xrange :", xrange);
-var yrange=plot.layout.scene2.yaxis.range;
-window.console.log("scene2 yrange :", yrange);
-var zrange=plot.layout.scene2.zaxis.range;
-window.console.log("scene2 zrange :", zrange);
-}
-    savePlot.push(plot);
+                saveRangeX, saveRangeY, saveRangeZ, 
+                _width, _height,title1,title2);
+
+    // layout's title..
+
+    var plot=addAPlot(subplotsDivname,_data, _layout, _width, _height, false);
+//    setupZoom(plot, 'aSet');
+    saveSubplots.push(plot);
   }
-  return savePlot;
+  return saveSubplots;
 }
 
 
@@ -482,11 +477,10 @@ function getSubplotsAt(fname,data,xkey, ykey, zkey, mcolor, slabel) {
    return data;
 }
 
-function getSubplotsDefaultLayout(xkey,ykey,zkey,xrange,yrange,zrange,width,height){
+function getSubplotsDefaultLayout(xkey,ykey,zkey,xrange,yrange,zrange,width,height,title1, title2){
   var tmpx, tmpy, tmpz;
   if(xrange && yrange && zrange) {
   var mrange=getOverallMinMax([xrange, yrange, zrange]);
-//  var _aspectratio=getLayoutAspectratio([ xrange, yrange, zrange]);
   var _aspectratio={ x:1, y:1, z:1 };
 window.console.log("calc aspectratio..",_aspectratio);
     tmpx= { "title":xkey, 
@@ -520,7 +514,31 @@ window.console.log("calc aspectratio..",_aspectratio);
       plot_bgcolor:"rgb(31,31,31)",
       showlegend: false,
       hovermode: 'closest',
+      annotations: [
+        {
+          x: 0.25, 
+          y: 1.0, 
+          font: {size: 16, color: '#666666'}, 
+          showarrow: false, 
+          text: title1, 
+          xanchor: 'center', 
+          xref: 'paper', 
+          yanchor: 'bottom', 
+          yref: 'paper'
+        }, 
+        {
+          x: 0.75, 
+          y: 1.0, 
+          font: {size: 16, color:'#666666'}, 
+          showarrow: false, 
+          text: title2, 
+          xanchor: 'center', 
+          xref: 'paper', 
+          yanchor: 'bottom', 
+          yref: 'paper'
+        }], 
     scene: {
+        title: 'title1',
         xaxis: tmpx,
         yaxis: tmpy,
         zaxis: tmpz,
@@ -551,14 +569,148 @@ window.console.log("calc aspectratio..",_aspectratio);
             y: [0, 1]
         }},
     margin: {
-    l: 2,
-    r: 2,
-    b: 2,
-    t: 2,
-            pad:0,
+    l: 5,
+    r: 5,
+    b: 5,
+    t: 30,
+    pad:10,
         },
       };
 //window.console.log(p);
   return p;
 }
+
+/************ZOOM**********************************/
+function setupZoom(plot, set) {
+  plot.on('plotly_relayout',
+    function(eventdata){  
+        var _edata=eventdata;
+        var _estr=JSON.stringify(eventdata);
+window.console.log(_estr);
+        var _eye=_edata['scene2']['eye'];
+        alert( 'ZOOM!' + ' ' +set+ '\n\n' +
+            'Event data:' + '\n' +  
+             JSON.stringify(_eye));
+//             JSON.stringify(eventdata));
+    });
+}
+/************ANIMATION**********************************/
+/*******************************************************/
+/*
+function changeColor(plot) {
+  var update=plot.data;
+//  var update= { marker: {color: 'red'} }
+  update[0].marker.color='red';
+  Plotly.restyle(plot, {update});
+}
+
+function moveCamera(plot, offset) {
+  var aCamera = { eye: { x:offset, y:offset, z:1.3 },
+                  up: {x:0,y:0,z:1},
+                  center: {x:0,y:0,z:0}
+                };
+
+//var update=plot.layout;
+//var p=update.scene.camera.eye.x;
+//window.console.log(typeof p);
+//window.console.log(p);
+//update.scene.camera=aCamera;
+//update.paper_bgcolor='white';
+//var pp=update.scene.camera.eye.x;
+//window.console.log(typeof pp);
+//window.console.log(pp);
+//  Plotly.relayout(plot, update);
+//  plot.layout.scene.camera=aCamera;
+  plot.layout.scene.camera.eye.x=1.3;
+  plot.layout.scene.camera.eye.y=1.3;
+  plot.layout.paper_bgcolor='white';
+  Plotly.redraw(plot);
+}
+
+function spin() 
+{
+window.console.log("in Spin...");
+//  requestAnimationFrame(updateAnimate);
+
+   var plot=saveThreeD;
+//window.console.log("in Spin...");
+//  changeColor(plot);
+   moveCamera(plot, 1);
+}
+*/
+
+/*
+var hop=0;
+var hop2=true;
+var animateCamera;
+var animateColor;
+var animateX=0.5;
+var animateY=0.5;
+var animateZ=1.3;
+var animateR1= -72;
+var animateR2= 72;
+
+function computeAnimate() {
+  var _zoom=2;
+  if(hop2) {
+    hop2=false;
+    animateColor='grey';
+    animateX=1.3;
+    animateY=1.3;
+    animateZ=1.3;
+    animateR1=-72;
+    aniamteR2=72;
+    } else {
+      hop2=true;
+      animateColor='white';
+      animateX=0.5;
+      animateY=0.5;
+      animateZ=1.3;
+      animateR1=-100;
+      aniamteR2=100;
+  }
+  hop=(hop+0.1);
+  if(hop >= 6.3) {
+    hop=0;
+  }
+  var i= Math.floor(hop/4);
+  var _x = Math.cos(hop)* _zoom;
+  var _y = Math.sin(hop)* _zoom;
+  var _z = 0.2;
+  animateCamera = { eye: { x:_x, y:_y, z:_z },
+                    up: {x:0,y:0,z:1},
+                    center: {x:0,y:0,z:0}
+                  };
+}
+
+function updateAnimate () {
+  computeAnimate();
+window.console.log('AAA ->', animateX, " ", animateY);
+
+  Plotly.animate(saveThreeD, 
+    {
+      layout: {
+        scene: { 
+//          xaxis: { gridcolor: animateColor, range: [animateR1, animateR2] },
+          xaxis: { range: [animateR1, animateR2] },
+          yaxis: { range : [animateR1, animateR2] },
+          zaxis: { range : [animateR1, animateR2] },
+          camera : { eye:{x:animateX,y:animateY,z:1.3},
+                   up: {x:0,y:0,z:1},
+                   center: {x:0,y:0,z:0}}
+        },
+//        paper_bgcolor: animateColor,
+//        scene: { camera: {eye: { x:animateX, y:animateY, z:animateZ}}}
+      }
+    },
+    { transition: { duration: 1000 },
+//    frame: { duration: 1000, redraw: false }
+    frame: { duration: 1000, redraw: true }
+  });
+
+  requestAnimationFrame(updateAnimate);
+}
+
+*/
+
 

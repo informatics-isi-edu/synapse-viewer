@@ -14,7 +14,8 @@ function dissmissPlots() {
 function removePlotsClick_btn()
 {
   var btn = document.getElementById('plots-button');
-  btn.style.opacity =0;
+  if(btn)
+    btn.style.opacity =0;
 }
 
 function plotsClick_btn() {

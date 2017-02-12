@@ -267,7 +267,7 @@ plot_bgcolor:"rgb(31,31,31)",
         yaxis: tmpy,
         zaxis: tmpz,
         aspectratio: {x:1,y:1,z:1},
-        camera : { eye:{x:1.3,y:1.3,z:1.3},
+       camera : { eye:{x:1.3,y:1.3,z:1.3},
 //        camera : { eye:{x:0.5,y:0.5,z:1.3},
                    up: {x:0,y:0,z:1},
                    center: {x:0,y:0,z:0}}
@@ -461,7 +461,7 @@ function addSubplots(plot_idx,keyX,keyY,keyZ, config, fwidth,fheight) {
     // layout's title..
 
     var plot=addAPlot(subplotsDivname,_data, _layout, _width, _height, false);
-//    setupZoom(plot, 'aSet');
+    setupZoom(plot, 'aSet');
     saveSubplots.push(plot);
   }
   return saveSubplots;
@@ -592,145 +592,77 @@ window.console.log("calc aspectratio..",_aspectratio);
 }
 
 var inZoom=false;
+var inZoom_cnt=0;
 /************ZOOM**********************************/
 function setupZoom(plot, set) {
   plot.on('plotly_relayout',
     function(eventdata){  
-        if(inZoom) return;
-        inZoom=true;
-        var update;
-        var _tmp=eventdata['scene'];
-        if(_tmp == null) {
-           _tmp=eventdata['scene2'];
-           update= { 'scene': _tmp };
-           } else {
-            update= { 'scene2': _tmp };
+        if(inZoom) {
+           return;
         }
-        
-        Plotly.relayout(plot, {update});
+        inZoom_cnt++;
+        inZoom=true;
+        var _tmp=eventdata['scene'];
+//window.console.log("eventdata, --", JSON.stringify(eventdata));
+        if(_tmp) {
+           zoomIn(plot, 'scene2',_tmp.eye);
+           } else {
+             _tmp=eventdata['scene2'];
+             if(_tmp) {
+               zoomIn(plot,'scene',_tmp.eye);
+               } else {
+                 window.console.log("don't try to zoom.");
+             }
+        }
         inZoom=false;
-window.console.log('ZOOM', JSON.stringify(_tmp));
-//        var _eye=_tmp['eye'];
-//        alertify.error( 'ZOOM! Event data:'+ JSON.stringify(_eye));
     });
 }
+
+function zoomIn(plot,id,eye) {
+  var scene = plot._fullLayout[id]._scene;
+  var camera = scene.getCamera();
+  var _x=eye.x;
+  var _y=eye.y;
+  var _z=eye.z;
+  var _eye={x:_x, y:_y, z:_z };
+  camera.eye=_eye;
+  scene.setCamera(camera);
+  Plotly.relayout(plot,camera);
+}
+      
 /************ANIMATION**********************************/
-/*******************************************************/
-/*
-function changeColor(plot) {
-  var update=plot.data;
-//  var update= { marker: {color: 'red'} }
-  update[0].marker.color='red';
-  Plotly.restyle(plot, {update});
+function runSpin() {
+  var plot=saveThreeD; 
+  var layout = plot._fullLayout['scene'];
+  layout.transition = { duration:2000};
+  layout.frame = { duration:2000, redraw: 'false' };
+  spinIt();
 }
 
-function moveCamera(plot, offset) {
-  var aCamera = { eye: { x:offset, y:offset, z:1.3 },
-                  up: {x:0,y:0,z:1},
-                  center: {x:0,y:0,z:0}
-                };
-
-//var update=plot.layout;
-//var p=update.scene.camera.eye.x;
-//window.console.log(typeof p);
-//window.console.log(p);
-//update.scene.camera=aCamera;
-//update.paper_bgcolor='white';
-//var pp=update.scene.camera.eye.x;
-//window.console.log(typeof pp);
-//window.console.log(pp);
-//  Plotly.relayout(plot, update);
-//  plot.layout.scene.camera=aCamera;
-  plot.layout.scene.camera.eye.x=1.3;
-  plot.layout.scene.camera.eye.y=1.3;
-  plot.layout.paper_bgcolor='white';
-  Plotly.redraw(plot);
+function spinIt() {
+  var plot=saveThreeD;
+  var _x=plot.layout.scene.camera.eye.x; // use x as the 'zoom'
+  var _y=plot.layout.scene.camera.eye.y; // use x as the 'zoom'
+  var zoom=Math.sqrt(_x * _x + _y * _y);
+window.console.log("zoom is", zoom);
+  rotate(plot,'scene', Math.PI/180, zoom);
+//  rotate(plot, 'scene2', Math.PI / 180, zoom);
+  requestAnimationFrame(spinIt);
 }
 
-function spin() 
-{
-window.console.log("in Spin...");
-//  requestAnimationFrame(updateAnimate);
-
-   var plot=saveThreeD;
-//window.console.log("in Spin...");
-//  changeColor(plot);
-   moveCamera(plot, 1);
-}
-*/
-
-/*
-var hop=0;
-var hop2=true;
-var animateCamera;
-var animateColor;
-var animateX=0.5;
-var animateY=0.5;
-var animateZ=1.3;
-var animateR1= -72;
-var animateR2= 72;
-
-function computeAnimate() {
-  var _zoom=2;
-  if(hop2) {
-    hop2=false;
-    animateColor='grey';
-    animateX=1.3;
-    animateY=1.3;
-    animateZ=1.3;
-    animateR1=-72;
-    aniamteR2=72;
+var _angle=0;
+function rotate(plot,id, delta, zoom) {
+  var scene = plot._fullLayout[id]._scene;
+  var camera = scene.getCamera();
+  var _x=Math.cos(_angle)*zoom;
+  var _y=Math.sin(_angle)*zoom;
+  var _z=camera.eye.z;
+  var _eye={x:_x, y:_y, z:_z };
+  camera.eye=_eye;
+  scene.setCamera(camera);
+  if(_angle >= 6.3) {
+    _angle=0;
     } else {
-      hop2=true;
-      animateColor='white';
-      animateX=0.5;
-      animateY=0.5;
-      animateZ=1.3;
-      animateR1=-100;
-      aniamteR2=100;
+      _angle=_angle+delta;
   }
-  hop=(hop+0.1);
-  if(hop >= 6.3) {
-    hop=0;
-  }
-  var i= Math.floor(hop/4);
-  var _x = Math.cos(hop)* _zoom;
-  var _y = Math.sin(hop)* _zoom;
-  var _z = 0.2;
-  animateCamera = { eye: { x:_x, y:_y, z:_z },
-                    up: {x:0,y:0,z:1},
-                    center: {x:0,y:0,z:0}
-                  };
 }
-
-function updateAnimate () {
-  computeAnimate();
-window.console.log('AAA ->', animateX, " ", animateY);
-
-  Plotly.animate(saveThreeD, 
-    {
-      layout: {
-        scene: { 
-//          xaxis: { gridcolor: animateColor, range: [animateR1, animateR2] },
-          xaxis: { range: [animateR1, animateR2] },
-          yaxis: { range : [animateR1, animateR2] },
-          zaxis: { range : [animateR1, animateR2] },
-          camera : { eye:{x:animateX,y:animateY,z:1.3},
-                   up: {x:0,y:0,z:1},
-                   center: {x:0,y:0,z:0}}
-        },
-//        paper_bgcolor: animateColor,
-//        scene: { camera: {eye: { x:animateX, y:animateY, z:animateZ}}}
-      }
-    },
-    { transition: { duration: 1000 },
-//    frame: { duration: 1000, redraw: false }
-    frame: { duration: 1000, redraw: true }
-  });
-
-  requestAnimationFrame(updateAnimate);
-}
-
-*/
-
-

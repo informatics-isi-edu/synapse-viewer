@@ -3,6 +3,10 @@
 //
 var saveThreeD; // first one is threeD, 2nd is subplots
 var saveSubplots=[];
+var saveSubplotsTracking=[]; // true if inZoom, false if not inZoom
+var withZoomLock=true; // subplots zooming mode, sync or not
+var inZoomLoop=false;
+var zoomTrack=0;
 
 function addAPlot(divname, data, layout, w, h, mode) {
 window.console.log("calling addAPlot..");
@@ -461,8 +465,9 @@ function addSubplots(plot_idx,keyX,keyY,keyZ, config, fwidth,fheight) {
     // layout's title..
 
     var plot=addAPlot(subplotsDivname,_data, _layout, _width, _height, false);
-    setupZoom(plot, 'aSet');
+    setupZoom(plot);
     saveSubplots.push(plot);
+    saveSubplotsTracking.push(false);
   }
   return saveSubplots;
 }
@@ -591,34 +596,72 @@ window.console.log("calc aspectratio..",_aspectratio);
   return p;
 }
 
-var inZoom=false;
-var inZoom_cnt=0;
 /************ZOOM**********************************/
-function setupZoom(plot, set) {
+function getSubplotsTracking(target) {
+  var cnt=saveSubplots.length;
+  for(var i=0; i<cnt; i++) {
+    if( saveSubplots[i]==target ) {
+ window.console.log("getSubplots..",i);
+      return i;
+    }
+  }
+  window.console.log("PANIC!! no correponding subplots..");  
+  return 0;
+}
+
+function inZoom(pidx) {
+  return saveSubplotsTracking[pidx];
+}
+function setInZoom(pidx) {
+  saveSubplotsTracking[pidx]=true;
+}
+function unsetInZoom(pidx) {
+  saveSubplotsTracking[pidx]=false;
+}
+
+function setupZoom(plot) {
   plot.on('plotly_relayout',
     function(eventdata){  
-        if(inZoom) {
-           return;
+        var pidx=getSubplotsTracking(plot);
+
+window.console.log("ZOOM, for ",pidx," eventdata, --", JSON.stringify(eventdata));
+        if(!withZoomLock) { // no need to sync
+          return; 
+          } else {  // need to sync
+
+            // if it is the first zoom
+            if(zoomTrack==0) { // the first one
+              raiseAll(pidx,eventdata);
+            }
+            if(zoomTrack == 0) { //again, last one..
+              return;
+            }
+
+            if(!inZoom(pidx)) { // sync the same pair
+              setInZoom(pidx);
+              } else { // already inZoom  
+window.console.log("already in zoom..", pidx);
+                if(zoomTrack > 0)
+                  zoomTrack--;
+                unsetInZoom(pidx);
+                return;
+            }
+
+            if( 'scene' in eventdata ) {
+              var _tmp=eventdata['scene'];
+window.console.log("ZOOM, process for >scene2< of ",pidx);
+              zoomIn(plot,pidx, 'scene2',_tmp.eye);
+            }
+            if( 'scene2' in eventdata ) {
+              var _tmp=eventdata['scene2'];
+window.console.log("ZOOM, process for >scene< of ",pidx);
+              zoomIn(plot,pidx, 'scene',_tmp.eye);
+            }
         }
-        inZoom_cnt++;
-        inZoom=true;
-        var _tmp=eventdata['scene'];
-//window.console.log("eventdata, --", JSON.stringify(eventdata));
-        if(_tmp) {
-           zoomIn(plot, 'scene2',_tmp.eye);
-           } else {
-             _tmp=eventdata['scene2'];
-             if(_tmp) {
-               zoomIn(plot,'scene',_tmp.eye);
-               } else {
-                 window.console.log("don't try to zoom.");
-             }
-        }
-        inZoom=false;
     });
 }
 
-function zoomIn(plot,id,eye) {
+function zoomIn(plot,pidx, id,eye) {
   var scene = plot._fullLayout[id]._scene;
   var camera = scene.getCamera();
   var _x=eye.x;
@@ -626,16 +669,32 @@ function zoomIn(plot,id,eye) {
   var _z=eye.z;
   var _eye={x:_x, y:_y, z:_z };
   camera.eye=_eye;
-  scene.setCamera(camera);
-  Plotly.relayout(plot,camera);
+  scene.setCamera(camera); // this causes relayout event
+//  Plotly.relayout(plot, camera);
 }
+
+function raiseAll(pidx,data) {
+window.console.log("raiseAll, for ",pidx);
+  var cnt=saveSubplots.length;
+  zoomTrack=cnt;
+  for(var i=0; i<cnt; i++) {
+    if(i != pidx) {
+window.console.log("raiseAll,  working on ",i," from, ",pidx);
+      var _plot=saveSubplots[i];
+      Plotly.relayout(_plot, data);
+    }
+  }
+}
+
       
 /************ANIMATION**********************************/
+// this is a hack..
+// really should use plotly.animate but unforuntately the
+// relayout for camera.eye is not merged into the main trunk
+// yet
 function runSpin() {
   var plot=saveThreeD; 
   var layout = plot._fullLayout['scene'];
-  layout.transition = { duration:2000};
-  layout.frame = { duration:2000, redraw: 'false' };
   spinIt();
 }
 
@@ -644,7 +703,7 @@ function spinIt() {
   var _x=plot.layout.scene.camera.eye.x; // use x as the 'zoom'
   var _y=plot.layout.scene.camera.eye.y; // use x as the 'zoom'
   var zoom=Math.sqrt(_x * _x + _y * _y);
-window.console.log("zoom is", zoom);
+//window.console.log("zoom is", zoom);
   rotate(plot,'scene', Math.PI/180, zoom);
 //  rotate(plot, 'scene2', Math.PI / 180, zoom);
   requestAnimationFrame(spinIt);

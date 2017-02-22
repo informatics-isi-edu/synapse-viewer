@@ -3,7 +3,7 @@
 //
 var saveThreeD; // first one is threeD, 2nd is subplots
 var saveSubplots=[];
-var saveSubplotsTracking=[]; // true if inZoom, false if not inZoom
+var saveSubplotsTracking=[]; // -1 not inZoom, 0 inZoom, 1 inZoom and firstOne
 var withZoomLock=true; // subplots zooming mode, sync or not
 var inZoomLoop=false;
 var zoomTrack=0;
@@ -467,7 +467,7 @@ function addSubplots(plot_idx,keyX,keyY,keyZ, config, fwidth,fheight) {
     var plot=addAPlot(subplotsDivname,_data, _layout, _width, _height, false);
     setupZoom(plot);
     saveSubplots.push(plot);
-    saveSubplotsTracking.push(false);
+    pushInZoom();
   }
   return saveSubplots;
 }
@@ -609,14 +609,27 @@ function getSubplotsTracking(target) {
   return 0;
 }
 
-function inZoom(pidx) {
-  return saveSubplotsTracking[pidx];
+//saveSubplotsTracking, -1 not inZoom, 0 inZoom, 1 inZoom&&firstOne
+function pushInZoom() {
+  saveSubplotsTracking.push(-1);
 }
-function setInZoom(pidx) {
-  saveSubplotsTracking[pidx]=true;
+
+function inZoom(pidx) {
+  return (saveSubplotsTracking[pidx] != -1);
+}
+
+function isFirstInZoom(pidx) {
+  return (saveSubplotsTracking[pidx] == 1);
+}
+
+function setInZoom(pidx,firstOne) {
+  if(firstOne)
+    saveSubplotsTracking[pidx]=1;
+    else
+      saveSubplotsTracking[pidx]=0;
 }
 function unsetInZoom(pidx) {
-  saveSubplotsTracking[pidx]=false;
+  saveSubplotsTracking[pidx]=-1;
 }
 
 function setupZoom(plot) {
@@ -630,23 +643,46 @@ window.console.log("ZOOM, for ",pidx," eventdata, --", JSON.stringify(eventdata)
           } else {  // need to sync
 
             // if it is the first zoom
+            var firstOne=false;
             if(zoomTrack==0) { // the first one
+window.console.log("FFF, first plotly relay call..");
+              firstOne=true;
               raiseAll(pidx,eventdata);
             }
             if(zoomTrack == 0) { //again, last one..
+window.console.log("FFF, last plotly relay call..");
               return;
             }
 
             if(!inZoom(pidx)) { // sync the same pair
-              setInZoom(pidx);
+window.console.log("SSS, first start on the zooming..",pidx);
+              setInZoom(pidx,firstOne);
               } else { // already inZoom  
-window.console.log("already in zoom..", pidx);
+window.console.log("SSS, already in zoom..", pidx);
+// need to determine if this is the first call then return
+// else need to zoom the current one..
+                if(isFirstInZoom(pidx)) {
+window.console.log("SSSFFF, in zoom and also first one..", pidx);
+                  } else {
+window.console.log("SSSNNN, in zoom and not first one..", pidx);
+/* this causes recursion
+              var _tmp=eventdata['scene2'];
+              if(_tmp) {
+                zoomIn(plot,pidx, 'scene',_tmp.eye);
+              }
+              _tmp=eventdata['scene'];
+              if(_tmp) {
+                zoomIn(plot,pidx, 'scene2',_tmp.eye);
+              }
+*/
+                }
                 if(zoomTrack > 0)
                   zoomTrack--;
                 unsetInZoom(pidx);
                 return;
             }
 
+window.console.log("SSS, process a plot,",pidx);
             if( 'scene' in eventdata ) {
               var _tmp=eventdata['scene'];
 window.console.log("ZOOM, process for >scene2< of ",pidx);
@@ -661,7 +697,7 @@ window.console.log("ZOOM, process for >scene< of ",pidx);
     });
 }
 
-function zoomIn(plot,pidx, id,eye) {
+function zoomIn(plot,pidx, id, eye) {
   var scene = plot._fullLayout[id]._scene;
   var camera = scene.getCamera();
   var _x=eye.x;
@@ -670,6 +706,7 @@ function zoomIn(plot,pidx, id,eye) {
   var _eye={x:_x, y:_y, z:_z };
   camera.eye=_eye;
   scene.setCamera(camera); // this causes relayout event
+window.console.log("XXX ",pidx," for ",id);
 //  Plotly.relayout(plot, camera);
 }
 

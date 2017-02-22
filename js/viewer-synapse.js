@@ -4,12 +4,6 @@
 // This is very dataset specific information
 // for, USC
 
-var initPlot_core=[],
-    initPlot_vicinity=[],
-    initPlot_zerolvl=[],
-    initPlot_toplvl=[], 
-    initPlot_transp=[];
-
 // these are per data file
 var initStepX=[];  //
 var initStepY=[];  //
@@ -30,9 +24,6 @@ var  saveRangeZ;
 //     url=http://localhost/data/synapse/segments-dummy.csv
 //     &url=http://localhost/data/synapse/segments2.csv
 // http://localhost/synapse/view.html?http://localhost/data/synapse/segments-dummy.csv
-// not sure if this is per file or per experiment
-//parameters,"(core, vicinity, zerolvl, toplvl,transp):", 
-//390.77695513916035, 890.06885742187546, 150.10100000000006, 10721.5, 0.8
 
 //new parameters (per url file)
 // (microns-per-pixel/microns-per-step), 
@@ -57,41 +48,6 @@ function processArgs(args) {
              var tmp=kvp[1].replace(new RegExp('/$'),'').trim();
              urls.push(tmp);
 //window.console.log("found..",tmp);
-             break;
-             }
-          case 'core':
-             {
-             var t=parseFloat(kvp[1]);
-             if(!isNaN(t))
-               initPlot_core.push(t);
-             break;
-             }
-          case 'vicinity':
-             {
-             var t=parseFloat(kvp[1]);
-             if(!isNaN(t))
-               initPlot_vicinity.push(t);
-             break;
-             }
-          case 'zerolvl':
-             {
-             var t=parseFloat(kvp[1]);
-             if(!isNaN(t))
-               initPlot_zerolvl.push(t);
-             break;
-             }
-          case 'toplvl':
-             {
-             var t=parseFloat(kvp[1]);
-             if(!isNaN(t))
-               initPlot_toplvl.push(t);
-             break;
-             }
-          case 'transp': 
-             {
-             var t=parseFloat(kvp[1]);
-             if(!isNaN(t))
-               initPlot_transp.push(t);
              break;
              }
           case 'stepX': 

@@ -729,10 +729,14 @@ window.console.log("raiseAll,  working on ",i," from, ",pidx);
 // really should use plotly.animate but unforuntately the
 // relayout for camera.eye is not merged into the main trunk
 // yet
+var spinning=false;
 function runSpin() {
-  var plot=saveThreeD; 
-  var layout = plot._fullLayout['scene'];
-  spinIt();
+  spinning = !spinning;
+  if(spinning) {
+    var plot=saveThreeD; 
+    var layout = plot._fullLayout['scene'];
+    spinIt();
+  }
 }
 
 function spinIt() {
@@ -743,7 +747,9 @@ function spinIt() {
 //window.console.log("zoom is", zoom);
   rotate(plot,'scene', Math.PI/180, zoom);
 //  rotate(plot, 'scene2', Math.PI / 180, zoom);
-  requestAnimationFrame(spinIt);
+  if(spinning) {
+    requestAnimationFrame(spinIt);
+  }
 }
 
 var _angle=0;

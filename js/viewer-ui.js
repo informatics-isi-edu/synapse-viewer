@@ -4,7 +4,7 @@
 // A flag to track whether plotly viewer is
 // being used inside another window (i.e. Chaise), set enableEmbedded.
 
-var DEBUG=false;
+var DEBUG=false; // enable animation and also the pull-out
 var START_THREED=true; // threeD one start with enabled mode
 var HAS_SUBPLOTS=false; // see if subplots needs to be made or not
 // 
@@ -37,10 +37,13 @@ function setupPlotList(dlist) {
   nameOfData=dlist;
 
   if(moreThanOneData()) {
-    HAS_SUBPLOTS=true;
-    if(!DEBUG)
-      START_THREED=false; // by default, don't show if more than
-                        // one data files initially
+    if(DEBUG) {
+      START_THREED=true; 
+      } else { // by default, don't show if more than
+               // one data files initially
+        HAS_SUBPLOTS=true;
+        START_THREED=false; 
+    }
   }
   // disable the heat/pullout mode
   if(!DEBUG) {

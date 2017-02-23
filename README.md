@@ -4,14 +4,16 @@ plotting 3D scatter plots with plotly.js for synapse dataset
 
 ## File Formats
 
-The viewer assumes a simple CSV file format with expected columns 
-of **X**, **Y**, and **Z**, and **raw hollow** as default intensity value
+The viewer assumes a simple CSV file format with expected columns of
+**X**, **Y**, and **Z** are coordinates, and **raw core** is default 
+intensity value
 
 The synapse-viewer can be invoked with one or more CSV datafiles
 
 The viewer plots a single scatter point cloud when supplied with one
 CSV datafile and mulitple subplots when supplied with more than one 
 CSV datafiles.
+
 
 ## Download and Run 
 
@@ -23,14 +25,14 @@ and invoke the viewer as in **Examples**
 ## Parameters
  
 Parameters are optional and are organized per **url**, first in-first out. If
-not completely specified, earlier settings are assumed to be the globally valid.
-They are used to alter the look and feel of the traces 
+not completely specified, earlier settings are assumed to be the globally 
+defined.  They are used to alter the look and feel of the point cloud.
 
 | Parameter | type | Note | Description |
 | --- | --- | --- | --- |
-| **stepX** | float | x | |
-| **stepY** | float | x | | 
-| **stepZ** | float | x | |
+| **stepX** | float | scale on x axis | microns-per-pixel grid spacing for X dimension |
+| **stepY** | float | scale on y axis | microns-per-pixel grid spacing for Y dimension | 
+| **stepZ** | float | scale on z axis | microns-per-pixel grid spacing for Z dimension |
 | **size** | integer | marker size | data point's pixel size |
 | **opacity** | float | marker opacity | data point's opacity, range from 0 to 1  |
 | **alias** | chars | datafile | label for datafile |
@@ -79,4 +81,7 @@ view.html?url=http://localhost/data/data1.csv&
           title='Title of the plot'
 
 ```
+
+spin.html: Allows multiple point clouds from different datafiles to 
+be plot on the same 3D scatter plot and spinning animation by z axis
 

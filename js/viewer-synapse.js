@@ -42,79 +42,127 @@ function processArgs(args) {
       urls.push(tmp);
       } else {
         var kvp = param.split('=');
-        switch (kvp[0].trim()) {
-          case 'url':
-            {
-             var tmp=kvp[1].replace(new RegExp('/$'),'').trim();
-             urls.push(tmp);
+
+var myProcessArg=function(kvp0, kvp1) {
+  switch(kvp0.trim()) {
+    case 'url':
+      {
+window.console.log("found url..", kvp1);
+      var tmp=kvp1.replace(new RegExp('/$'),'').trim();
+      urls.push(tmp);
 //window.console.log("found..",tmp);
-             break;
-             }
-          case 'stepX': 
+      break;
+      }
+    case 'stepX': 
              {
-             var t=parseFloat(kvp[1]);
+             var t=parseFloat(kvp1);
              if(!isNaN(t))
                initStepX.push(t);
              break;
              }
-          case 'stepY': 
+    case 'stepY': 
              {
-             var t=parseFloat(kvp[1]);
+             var t=parseFloat(kvp1);
              if(!isNaN(t))
                initStepY.push(t);
              break;
              }
-          case 'stepZ': 
+    case 'stepZ': 
              {
-             var t=parseFloat(kvp[1]);
+             var t=parseFloat(kvp1);
              if(!isNaN(t))
                initStepZ.push(t);
              break;
              }
-          case 'size': 
+    case 'size': 
              {
-             var t=parseInt(kvp[1]);
+             var t=parseInt(kvp1);
              if(!isNaN(t))
                initSize.push(t);
              break;
              }
-          case 'opacity': 
+    case 'opacity': 
              {
-             var t=parseFloat(kvp[1]);
+             var t=parseFloat(kvp1);
              if(!isNaN(t))
                initOpacity.push(t);
              break;
              }
-          case 'alias': 
+    case 'alias': 
              {
-             var t=trimQ(kvp[1]);
+             var t=trimQ(kvp1);
              initAlias.push(t);
              break;
              }
-          case 'color': 
+    case 'color': 
              {
-             var t=trimQ(kvp[1]);
+             var t=trimQ(kvp1);
              initColor.push(t);
              break;
              }
-          case 'title': 
+    case 'title': 
              {
-             var t=trimQ(kvp[1]);
+             var t=trimQ(kvp1);
              initTitle.push(t);
              break;
              }
-          case 'heat': 
+    case 'heat': 
              {
-             var t=trimQ(kvp[1]);
+             var t=trimQ(kvp1);
              initHeatOn.push(t);
              break;
              }
-          default: { 
-window.console.log("dropping this...",kvp[0].trim());
+/*
+http://localhost/synapse-viewer/view.html?metaurl=http://localhost/data/synapse/meta.json
+*/
+    case "metaurl":
+             {
+             var furl=trimQ(kvp1);
+             var t=ckExist(furl);
+window.console.log("metalurl", furl);
+             myProcessArg('meta', t);
+             break;
+             }
+/* metaurl = url */
+    case "meta":
+             {
+/* 
+mata = [ {"url": url, "title": ..., "stepX": ..., "stepY": ..., "stepZ": ...,
+         "size": ..., "opacity": ..., "color": ..., "hash": ...  },
+         {"url": url2, "title": ..., "stepX": ..., "stepY": ..., "stepZ": ...,
+         "size": ..., "opacity": ..., "color": ..., "hash": ...  }
+       ]; 
+http://localhost/synapse-viewer/view.html?meta=[{"url":"http://localhost/data/synapse/save-old.csv"}]
+
+http://localhost/synapse-viewer/view.html?meta=[{"url":"http://localhost/data/synapse/save-old.csv","stepX":0.26,"stepY":0.26,"stepZ":0.4,"size":2,"color":"blue"}]
+
+http://localhost/synapse-viewer/view.html?meta=[
+{"url":"http://localhost/data/synapse/segment2.csv","stepX":0.26,"stepY":0.26,"stepZ":0.4,"size":1,"color":"green"},
+{"url":"http://localhost/data/synapse/segment4.csv","stepX":0.26,"stepY":0.26,"stepZ":0.4,"size":2,"color":"blue"}]
+*/
+             var t=trimQ(kvp1);
+window.console.log(t);
+             var items = JSON.parse(t);
+             for( var pidx in items ) {
+                var p=items[pidx]; // for a single plot
+window.console.log("p is", p);
+                for(var tidx in p ) {
+                   var t=p[tidx]; // for a single plot
+window.console.log("plots:", tidx, " ",t);
+                   myProcessArg(tidx, t);
+                }
+             }
+             break;
+             }
+    default: { 
+window.console.log("dropping this...",kvp0.trim());
              /* drop this..*/
              break;
              }
-       }
+    }
+};// myProcessArg
+
+      myProcessArg(kvp[0], kvp[1]);
     }
   }
   return urls;

@@ -558,11 +558,6 @@ window.console.log("calc aspectratio..",_aspectratio);
         xaxis: tmpx,
         yaxis: tmpy,
         zaxis: tmpz,
-// data range, x 3.64,138.32/y 3.9,136.5/z 4.8,58
-// plotly's dataScale, 0.0074, 0.0075, 0.01879
-// aspect ratio from plotly
-// 1.3, 1.3, 0.539
-// 1.2, 1.19, 0.699
         aspectratio : _aspectratio,
         camera : { eye:{x:1,y:1,z:1},
                    up: {x:0,y:0,z:1},
@@ -575,7 +570,6 @@ window.console.log("calc aspectratio..",_aspectratio);
         xaxis: tmpx,
         yaxis: tmpy,
         zaxis: tmpz,
-//        aspectratio : { x:1, y:1, z:0.43 },
         aspectratio : _aspectratio,
         camera : { eye:{x:1,y:1,z:1},
                    up: {x:0,y:0,z:1},
@@ -706,7 +700,7 @@ function zoomIn(plot,pidx, id, eye) {
   var _eye={x:_x, y:_y, z:_z };
   camera.eye=_eye;
   scene.setCamera(camera); // this causes relayout event
-window.console.log("XXX ",pidx," for ",id);
+//window.console.log("zoomIn..relayout ",pidx," for ",id);
 //  Plotly.relayout(plot, camera);
 }
 

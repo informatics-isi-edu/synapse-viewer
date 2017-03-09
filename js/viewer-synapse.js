@@ -27,12 +27,18 @@ var  saveRangeZ;
 
 function setupInitValues(idx)
 {
-initStepX[idx]=1;
-initStepY[idx]=1;
-initStepZ[idx]=1;
-initSize[idx]=1;
-initOpacity[idx]=1;
-initAlias[idx]=("foo"+idx);
+if(initStepX[idx]==undefined)
+  initStepX[idx]=1;
+if(initStepY[idx]==undefined)
+  initStepY[idx]=1;
+if(initStepZ[idx]==undefined)
+  initStepZ[idx]=1;
+if(initSize[idx]==undefined)
+  initSize[idx]=1;
+if(initOpacity[idx]==undefined)
+  initOpacity[idx]=1;
+if(initAlias[idx]==undefined)
+  initAlias[idx]=("foo"+idx);
 }
 
 //new parameters (per url file)
@@ -57,7 +63,6 @@ function processArgs(args) {
         var kvp = param.split('=');
 
 var myProcessArg=function(kvp0, kvp1) {
-  
   switch(kvp0.trim()) {
     case 'idx':
       {
@@ -83,6 +88,7 @@ window.console.log("found url..", kvp1);
               else trackidx++;
           }
           urls[trackidx]=tmp;
+          setupInitValues(trackidx); // still needs to set it up
 //window.console.log("found..",tmp);
       }
       break;

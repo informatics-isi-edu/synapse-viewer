@@ -154,7 +154,7 @@ window.console.log("found url..", kvp1);
     case 'heat': 
              {
              var t=trimQ(kvp1);
-             initHeat[trackidx]=t;
+             initHeatOn[trackidx]=t;
              break;
              }
 /*

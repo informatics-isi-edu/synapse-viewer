@@ -25,6 +25,16 @@ var  saveRangeZ;
 //     &url=http://localhost/data/synapse/segments2.csv
 // http://localhost/synapse/view.html?http://localhost/data/synapse/segments-dummy.csv
 
+function setupInitValues(idx)
+{
+initStepX[idx]=1;
+initStepY[idx]=1;
+initStepZ[idx]=1;
+initSize[idx]=1;
+initOpacity[idx]=1;
+initAlias[idx]=("foo"+idx);
+}
+
 //new parameters (per url file)
 // (microns-per-pixel/microns-per-step), 
 // stepX=0.26, stepY=0.26, stepZ=0.4
@@ -33,6 +43,9 @@ var  saveRangeZ;
 //   nanometer) and 0.26 micron steps in X and Y (260 nanometer).
 // also, alias  to supplement the filestub as trace-name
 function processArgs(args) {
+  var insetup=false;  // true when processing metaurl's content
+  var trackidx=null;     // 
+  var hasidx=false;   // backward compatiable when there is no idx setting
   var urls=[];
   var params = args[1].split('&');
   for (var i=0; i < params.length; i++) {
@@ -44,60 +57,86 @@ function processArgs(args) {
         var kvp = param.split('=');
 
 var myProcessArg=function(kvp0, kvp1) {
+  
   switch(kvp0.trim()) {
+    case 'idx':
+      {
+        hasidx=true;
+        var t=parseInt(kvp1);
+        if(!isNaN(t)) {
+          trackidx=t;
+        }
+        break;
+      }
     case 'url':
       {
 window.console.log("found url..", kvp1);
       var tmp=kvp1.replace(new RegExp('/$'),'').trim();
-      urls.push(tmp);
+      // setup all the init values for this url
+      if(insetup) { // no need to track url in urls
+        setupInitValues(trackidx);
+        } else {
+          if(!hasidx) {
+            // need to increment manually
+            if(trackidx==null)
+              trackidx=0;
+              else trackidx++;
+          }
+          urls[trackidx]=tmp;
 //window.console.log("found..",tmp);
+      }
       break;
       }
     case 'stepX': 
              {
              var t=parseFloat(kvp1);
-             if(!isNaN(t))
-               initStepX.push(t);
+             if(!isNaN(t)) {
+               initStepX[trackidx]=t;
+             }
              break;
              }
     case 'stepY': 
              {
              var t=parseFloat(kvp1);
-             if(!isNaN(t))
-               initStepY.push(t);
+             if(!isNaN(t)) {
+               initStepY[trackidx]=t;
+             }
              break;
              }
     case 'stepZ': 
              {
              var t=parseFloat(kvp1);
-             if(!isNaN(t))
-               initStepZ.push(t);
+             if(!isNaN(t)) {
+               initStepZ[trackidx]=t;
+             }
              break;
              }
     case 'size': 
              {
              var t=parseInt(kvp1);
-             if(!isNaN(t))
-               initSize.push(t);
+             if(!isNaN(t)) {
+               initSize[trackidx]=t;
+             }
              break;
              }
     case 'opacity': 
              {
              var t=parseFloat(kvp1);
-             if(!isNaN(t))
-               initOpacity.push(t);
+             if(!isNaN(t)) {
+               initOpacity[trackidx]=t;
+             }
              break;
              }
     case 'alias': 
              {
              var t=trimQ(kvp1);
-             initAlias.push(t);
+             initAlias[trackidx]=t;
              break;
              }
     case 'color': 
              {
              var t=trimQ(kvp1);
-             initColor.push(t);
+             initColor[trackidx]=t;
              break;
              }
     case 'title': 
@@ -109,36 +148,45 @@ window.console.log("found url..", kvp1);
     case 'heat': 
              {
              var t=trimQ(kvp1);
-             initHeatOn.push(t);
+             initHeat[trackidx]=t;
              break;
              }
 /*
 http://localhost/synapse-viewer/view.html?metaurl=http://localhost/data/synapse/meta.json
 */
+    case "runurl":
+             {
+             var furl=trimQ(kvp1);
+             var t=ckExist(furl);
+             myProcessArg('meta', t);
+             break;
+             }
     case "metaurl":
              {
              var furl=trimQ(kvp1);
              var t=ckExist(furl);
 window.console.log("metalurl", furl);
+             insetup=true;
              myProcessArg('meta', t);
+             insetup=false;
              break;
              }
 /* metaurl = url */
     case "meta":
              {
 /* 
-mata = [ {"url": url, "title": ..., "stepX": ..., "stepY": ..., "stepZ": ...,
+mata = [ {"idx": 0, "url": url, "title": ..., "stepX": ..., "stepY": ..., "stepZ": ...,
          "size": ..., "opacity": ..., "color": ..., "hash": ...  },
-         {"url": url2, "title": ..., "stepX": ..., "stepY": ..., "stepZ": ...,
+         {"idx": 1, "url": url2, "title": ..., "stepX": ..., "stepY": ..., "stepZ": ...,
          "size": ..., "opacity": ..., "color": ..., "hash": ...  }
        ]; 
 http://localhost/synapse-viewer/view.html?meta=[{"url":"http://localhost/data/synapse/save-old.csv"}]
 
-http://localhost/synapse-viewer/view.html?meta=[{"url":"http://localhost/data/synapse/save-old.csv","stepX":0.26,"stepY":0.26,"stepZ":0.4,"size":2,"color":"blue"}]
+http://localhost/synapse-viewer/view.html?meta=[{"idx":0, "url":"http://localhost/data/synapse/save-old.csv","stepX":0.26,"stepY":0.26,"stepZ":0.4,"size":2,"color":"blue"}]
 
 http://localhost/synapse-viewer/view.html?meta=[
-{"url":"http://localhost/data/synapse/segment2.csv","stepX":0.26,"stepY":0.26,"stepZ":0.4,"size":1,"color":"green"},
-{"url":"http://localhost/data/synapse/segment4.csv","stepX":0.26,"stepY":0.26,"stepZ":0.4,"size":2,"color":"blue"}]
+{"idx":0,"url":"http://localhost/data/synapse/segment2.csv","stepX":0.26,"stepY":0.26,"stepZ":0.4,"size":1,"color":"green"},
+{"idx":1,"url":"http://localhost/data/synapse/segment4.csv","stepX":0.26,"stepY":0.26,"stepZ":0.4,"size":2,"color":"blue"}]
 */
              var t=trimQ(kvp1);
 window.console.log(t);
@@ -331,12 +379,12 @@ window.console.log("found a comment line..");
         initPlot_data.push(data);
       });
       var color=getDefaultColor(i);
-      if(initColor.length > i) {
+      if(initColor.length > i && initColor[i]!=undefined) {
         color=initColor[i];
       }
       myColor.push(color);
       var fstub=chopForStub(url);
-      if(initAlias.length > i) {
+      if(initAlias.length > i && initAlias[i]!=undefined) {
         fstub=initAlias[i];
       }
       nlist.push(fstub);

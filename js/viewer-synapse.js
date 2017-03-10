@@ -157,9 +157,6 @@ window.console.log("found url..", kvp1);
              initHeatOn[trackidx]=t;
              break;
              }
-/*
-http://localhost/synapse-viewer/view.html?metaurl=http://localhost/data/synapse/meta.json
-*/
     case "runurl":
              {
              var furl=trimQ(kvp1);
@@ -171,13 +168,11 @@ http://localhost/synapse-viewer/view.html?metaurl=http://localhost/data/synapse/
              {
              var furl=trimQ(kvp1);
              var t=ckExist(furl);
-window.console.log("metalurl", furl);
              insetup=true;
              myProcessArg('meta', t);
              insetup=false;
              break;
              }
-/* metaurl = url */
     case "meta":
              {
 /* 

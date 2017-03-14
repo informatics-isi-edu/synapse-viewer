@@ -3,36 +3,54 @@
 //
 // This is very dataset specific information
 // for, USC
+//
+// the data csv file is assume to have a 'X','Y', and 'Z' column
+// to be used for plotting the points(markers)
 
 // these are per data file
 var initStepX=[];  //
 var initStepY=[];  //
 var initStepZ=[];  //
-var initSize=[];    // size of the marker
+var initSize=[];    // size(pixel) of the marker
 var initOpacity=[]; // opacity of the marker
+var initColor=[];   // color of the marker
 var initAlias=[];   // alias for each dataset to be used as label
-var initColor=[];   //initial color
 var initTitle=[];   // title to be used for subplots/or main scatter plot
-var initHeatOn=[];  // column to be used to create heat scale ('raw core') 
+var initHeatOn=[];  // column label to be used to create heat scale ('raw core') 
 var myColor=[];  // color to be used - merged from initColor&defaultColor
-
+                 // when there no user color is supplied
 var  saveRangeX;
 var  saveRangeY;
 var  saveRangeZ;
 
-// http://localhost/synapse/view.html?
-//     url=http://localhost/data/synapse/segments-dummy.csv
-//     &url=http://localhost/data/synapse/segments2.csv
-// http://localhost/synapse/view.html?http://localhost/data/synapse/segments-dummy.csv
-
+// setup to be the last one that were used
 function setupInitValues(idx)
 {
-if(initStepX[idx]==undefined)
-  initStepX[idx]=1;
-if(initStepY[idx]==undefined)
-  initStepY[idx]=1;
-if(initStepZ[idx]==undefined)
-  initStepZ[idx]=1;
+window.console.log("YYY setup init..",idx);
+if(initStepX[idx]==undefined) {
+  if(initStepX.length > 0) {
+    var p=initStepX.slice(-1).pop();
+    initStepX[idx] = p;
+    } else {
+      initStepX[idx]=1;
+  }
+}
+if(initStepY[idx]==undefined) {
+  if(initStepY.length > 0) {
+    var p=initStepY.slice(-1).pop();
+    initStepY[idx] = p;
+    } else {
+      initStepY[idx]=1;
+  }
+}
+if(initStepZ[idx]==undefined) {
+  if(initStepZ.length > 0) {
+    var p=initStepZ.slice(-1).pop();
+    initStepZ[idx] = p;
+    } else {
+      initStepZ[idx]=1;
+  }
+}
 if(initSize[idx]==undefined)
   initSize[idx]=1;
 if(initOpacity[idx]==undefined)
@@ -49,7 +67,6 @@ if(initAlias[idx]==undefined)
 //   nanometer) and 0.26 micron steps in X and Y (260 nanometer).
 // also, alias  to supplement the filestub as trace-name
 function processArgs(args) {
-  var insetup=false;  // true when processing metaurl's content
   var trackidx=null;     // 
   var hasidx=false;   // backward compatiable when there is no idx setting
   var urls=[];
@@ -78,19 +95,14 @@ var myProcessArg=function(kvp0, kvp1) {
 window.console.log("found url..", kvp1);
       var tmp=kvp1.replace(new RegExp('/$'),'').trim();
       // setup all the init values for this url
-      if(insetup) { // no need to track url in urls
-        setupInitValues(trackidx);
-        } else {
-          if(!hasidx) {
+      if(!hasidx) { // idx is optional in runurl
             // need to increment manually
-            if(trackidx==null)
-              trackidx=0;
-              else trackidx++;
-          }
-          urls[trackidx]=tmp;
-          setupInitValues(trackidx); // still needs to set it up
-//window.console.log("found..",tmp);
+        if(trackidx==null)
+          trackidx=0;
+          else trackidx++;
       }
+      urls[trackidx]=tmp;
+      setupInitValues(trackidx); 
       break;
       }
     case 'stepX': 
@@ -161,6 +173,8 @@ window.console.log("found url..", kvp1);
              {
              var furl=trimQ(kvp1);
              var t=ckExist(furl);
+             hasidx=false;
+             trackidx=null;
              myProcessArg('meta', t);
              break;
              }
@@ -168,9 +182,7 @@ window.console.log("found url..", kvp1);
              {
              var furl=trimQ(kvp1);
              var t=ckExist(furl);
-             insetup=true;
              myProcessArg('meta', t);
-             insetup=false;
              break;
              }
     case "meta":
@@ -194,7 +206,17 @@ window.console.log(t);
              var items = JSON.parse(t);
              for( var pidx in items ) {
                 var p=items[pidx]; // for a single plot
-window.console.log("p is", p);
+// process idx first if it exists
+                var tt=p['idx'];
+                if(tt != undefined) {
+                  myProcessArg('idx',tt);
+                  delete p['idx'];
+                }
+// special case,  if there is no url in here, stuff in a dummy one
+                var t=p['url'];
+                if(t == undefined) {
+                  myProcessArg('url',"dummy.csv");
+                }
                 for(var tidx in p ) {
                    var t=p[tidx]; // for a single plot
 window.console.log("plots:", tidx, " ",t);

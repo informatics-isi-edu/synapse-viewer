@@ -71,14 +71,16 @@ view.html?url=http://localhost/data/segment1.csv&
 Plot subplots with multiple CSV datafiles
 
 ```
-view.html?url=http://localhost/data/data1.csv&
-          url=http://localhost/data/data2.csv&
-          stepX=0.26&
+view.html?stepX=0.26&
           stepY=0.26&
           stepZ=0.4&
-          alias='first one'&
-          alias='second file'&
           title='Title of the plot'
+          url=http://localhost/data/data1.csv&
+          alias='first one'&
+          color=green&
+          url=http://localhost/data/data2.csv&
+          alias='second file'&
+          color=red
 
 ```
 

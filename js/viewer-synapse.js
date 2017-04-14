@@ -188,7 +188,7 @@ window.console.log("found url..", kvp1);
     case "meta":
              {
 /* 
-mata = [ {"idx": 0, "url": url, "title": ..., "stepX": ..., "stepY": ..., "stepZ": ...,
+meta = [ {"idx": 0, "url": url, "title": ..., "stepX": ..., "stepY": ..., "stepZ": ...,
          "size": ..., "opacity": ..., "color": ..., "hash": ...  },
          {"idx": 1, "url": url2, "title": ..., "stepX": ..., "stepY": ..., "stepZ": ...,
          "size": ..., "opacity": ..., "color": ..., "hash": ...  }

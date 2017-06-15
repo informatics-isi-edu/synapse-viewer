@@ -9,7 +9,8 @@
 //     url=http://localhost/data/synapse/segments-dummy.csv
 //     &url=http://localhost/data/synapse/segments2.csv
 //
-//     &label=iplotName
+// see viewer-synapse.js for more examples
+//
 
 //  type: "threeD"
 //  type: "subplots"

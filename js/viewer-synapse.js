@@ -98,7 +98,6 @@ window.console.log("got label..", t);
       }
     case 'url':
       {
-window.console.log("found url..", kvp1);
       var tmp=kvp1.replace(new RegExp('/$'),'').trim();
       // setup all the init values for this url
       if(!hasidx) { // idx is optional in runurl
@@ -193,22 +192,7 @@ window.console.log("found url..", kvp1);
              }
     case "meta":
              {
-/* 
-meta = [ {"idx": 0, "url": url, "title": ..., "stepX": ..., "stepY": ..., "stepZ": ...,
-         "size": ..., "opacity": ..., "color": ..., "hash": ...  },
-         {"idx": 1, "url": url2, "title": ..., "stepX": ..., "stepY": ..., "stepZ": ...,
-         "size": ..., "opacity": ..., "color": ..., "hash": ...  }
-       ]; 
-http://localhost/synapse-viewer/view.html?meta=[{"url":"http://localhost/data/synapse/save-old.csv"}]
-
-http://localhost/synapse-viewer/view.html?meta=[{"idx":0, "url":"http://localhost/data/synapse/save-old.csv","stepX":0.26,"stepY":0.26,"stepZ":0.4,"size":2,"color":"blue"}]
-
-http://localhost/synapse-viewer/view.html?meta=[
-{"idx":0,"url":"http://localhost/data/synapse/segment2.csv","stepX":0.26,"stepY":0.26,"stepZ":0.4,"size":1,"color":"green"},
-{"idx":1,"url":"http://localhost/data/synapse/segment4.csv","stepX":0.26,"stepY":0.26,"stepZ":0.4,"size":2,"color":"blue"}]
-*/
              var t=trimQ(kvp1);
-window.console.log(t);
              var items = JSON.parse(t);
              for( var pidx in items ) {
                 var p=items[pidx]; // for a single plot
@@ -225,14 +209,13 @@ window.console.log(t);
                 }
                 for(var tidx in p ) {
                    var t=p[tidx]; // for a single plot
-window.console.log("plots:", tidx, " ",t);
                    myProcessArg(tidx, t);
                 }
              }
              break;
              }
     default: { 
-window.console.log("dropping this...",kvp0.trim());
+//window.console.log("dropping this...",kvp0.trim());
              /* drop this..*/
              break;
              }
@@ -446,3 +429,23 @@ function ckExist(url) {
       return null;
   }
 }
+
+/**************************************************************************
+  sample examples
+
+meta = [ {"idx": 0, "url": url, "title": ..., "stepX": ..., "stepY": ..., "stepZ": ...,
+         "size": ..., "opacity": ..., "color": ..., "hash": ...  },
+         {"idx": 1, "url": url2, "title": ..., "stepX": ..., "stepY": ..., "stepZ": ...,
+         "size": ..., "opacity": ..., "color": ..., "hash": ...  }
+       ]; 
+
+http://localhost/synapse-viewer/view.html?meta=[{"url":"http://localhost/data/synapse/save-old.csv"}]
+
+http://localhost/synapse-viewer/view.html?meta=[{"idx":0, "url":"http://localhost/data/synapse/save-old.csv","stepX":0.26,"stepY":0.26,"stepZ":0.4,"size":2,"color":"blue"}]
+
+http://localhost/synapse-viewer/view.html?meta=[
+{"idx":0,"url":"http://localhost/data/synapse/segment2.csv","stepX":0.26,"stepY":0.26,"stepZ":0.4,"size":1,"color":"green"},
+{"idx":1,"url":"http://localhost/data/synapse/segment4.csv","stepX":0.26,"stepY":0.26,"stepZ":0.4,"size":2,"color":"blue"}]
+*/
+
+**************************************************************************/

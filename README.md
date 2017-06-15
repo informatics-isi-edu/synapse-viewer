@@ -85,5 +85,9 @@ view.html?stepX=0.26&
 ```
 
 spin.html: Allows multiple point clouds from different datafiles to 
-be plot on the same 3D scatter plot and spinning animation by z axis
+be plotted on the same 3D scatter plot and spinning animation by z axis
+
+Options of specifying meta global configuration and runtime local 
+configuraiton in a json structured format is also available. Please see
+viewer-synapse.js for samples
 

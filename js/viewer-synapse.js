@@ -26,7 +26,6 @@ var  saveRangeZ;
 // setup to be the last one that were used
 function setupInitValues(idx)
 {
-window.console.log("YYY setup init..",idx);
 if(initStepX[idx]==undefined) {
   if(initStepX.length > 0) {
     var p=initStepX.slice(-1).pop();
@@ -81,6 +80,13 @@ function processArgs(args) {
 
 var myProcessArg=function(kvp0, kvp1) {
   switch(kvp0.trim()) {
+    case 'label': // to track iframelabel
+      {
+        var t=trimQ(kvp1);
+window.console.log("got label..", t);
+        initLabel=t;
+        break;
+      }
     case 'idx':
       {
         hasidx=true;
@@ -375,7 +381,7 @@ function loadAndProcessCSVfromFiles(urls) {
           return nlist;
         }
         if(data[0]['Z'] == "saved") {
-window.console.log("found a comment line..");
+//window.console.log("found a comment line..");
           data.splice(0,1);
         }
 /* -- skip this since the file got preprocessed

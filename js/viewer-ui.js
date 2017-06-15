@@ -4,7 +4,7 @@
 // A flag to track whether plotly viewer is
 // being used inside another window (i.e. Chaise), set enableEmbedded.
 
-var DEBUG=false; // enable animation and also the pull-out
+var DEBUG=false; // enable one of animation/spin/pull-out
 var START_THREED=true; // threeD one start with enabled mode
 var HAS_SUBPLOTS=false; // see if subplots needs to be made or not
 // 

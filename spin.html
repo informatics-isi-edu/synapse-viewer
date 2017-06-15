@@ -52,11 +52,11 @@
 </div><!-- controlBlock -->
 <script>
 DEBUG=true;
-HAS_SUBPLOTS=true;
+HAS_SUBPLOTS=false;
 </script>
-<div class="row col-md-1">
+<div class="row col-md-2">
 <!-- Animation --> 
-  <button id="plots-button" type="button" class="row btn-sm" style="background-color:transparent; border:none; color:red; margin-left:-15px;" title='spin it' onclick="runSpin()">
+  <button id="spin-button" type="button" class="row btn-sm" style="background-color:transparent; border:none; color:red; margin-left:-15px;" title='spin it' onclick="runSpin()">
     <span class="glyphicon glyphicon-cd"></span>
   </button>
 <!-- -->
@@ -65,9 +65,8 @@ HAS_SUBPLOTS=true;
     <span class="glyphicon glyphicon-fire"></span>
   </button>
 -->
-<!-- menu pull out -->
-  <button id="plots-button" type="button" class="row btn-sm" style="background-color:transparent;border:none; color:white;margin-left:0px;" title='pull out'  onclick="plotsClick()">
-    <span class="glyphicon glyphicon-menu-right"></span>
+<!-- menu pull out --> 
+  <button id="plots-button" type="button" class="row btn-sm" style="background-color:transparent;border:none; color:white;margin-left:0px; margin-top:0px;" title='pull out'  onclick="plotsClick()"> <strong>Plots</strong><span class="glyphicon glyphicon-play"></span>
   </button>
 <!-- -->
 </div> 

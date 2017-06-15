@@ -13,10 +13,12 @@ function dissmissPlots() {
 
 function removePlotsClick_btn()
 {
+window.console.log("IN HERE...");
   var btn = document.getElementById('plots-button');
   if(btn)
     btn.style.opacity =0;
 }
+
 
 function plotsClick_btn() {
   using_button=true;
@@ -32,19 +34,16 @@ function plotsClick_btn() {
   }
 }
 
-// slide out
+// slide in/out 
 function plotsClick() {
   plots_sidebar = !plots_sidebar;
-//setTrackingPropertyList();
+  var btn = document.getElementById('plots-button');
   if(plots_sidebar) {
     sidebar_plots_slideOut();
     //hide button
-    var btn = document.getElementById('plots-button');
     btn.style.opacity = 0;
     } else {
       sidebar_plots_slideIn();
-//savePropertyList();
-      var btn = document.getElementById('plots-button');
       btn.style.opacity = 1;
   }
 }

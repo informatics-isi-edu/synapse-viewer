@@ -9,9 +9,12 @@
 //     url=http://localhost/data/synapse/segments-dummy.csv
 //     &url=http://localhost/data/synapse/segments2.csv
 //
+//     &label=iplotName
 
 //  type: "threeD"
 //  type: "subplots"
+
+var initLabel='iplot1';
 
 var  initPlot_data=[]; // very first set of original data
 var  initPlot_name; // original file stubs of the data files
@@ -55,9 +58,14 @@ function ckExist(url) {
 /*****MAIN*****/
 jQuery(document).ready(function() {
 
+var p=window.parent;
+var id=p.id;
+var s=window;
+var sid=s.id;
+
   frameHeight=window.innerHeight;
   frameWidth=window.innerWidth;
-window.console.log("READY:: ", frameWidth, ", ",frameHeight);
+//window.console.log("READY:: ", frameWidth, ", ",frameHeight);
 
 // if the framewidth is small, then make the pull out to span
 // the whole width or else just partial
@@ -112,7 +120,7 @@ window.addEventListener('resize', function(event){
 function doResize() {
   frameHeight=window.innerHeight;
   frameWidth=window.innerWidth;
-window.console.log("ONSIZE:: ", frameWidth, ", ",frameHeight);
+//window.console.log("ONSIZE:: ", frameWidth, ", ",frameHeight);
   if(enableEmbedded) {
     if(saveFirst) {
       displayInitPlot();
@@ -202,3 +210,34 @@ function refreshPlot(plot_idx) {
   window.console.log(">>> secene top",scene.style.top);
 */
 }
+
+/***** examples
+
+https://synapse-dev.isrd.isi.edu/synapse-viewer/view.html?
+url=/hatrac/Zf/ZfDsy20160616A/CropImgZfDsy20160616A3A.segments-only.csv:XVT4FAX2PLYBELG6FERPMS63WM&
+url=/hatrac/Zf/ZfDsy20160616A/CropImgZfDsy20160616A6A.segments-only.csv:HQFZPBAL33L4IRWRBCLZP5SZUI&
+stepX=0.26&
+stepY=0.26&
+stepZ=0.4&
+size=1&
+opacity=1&
+color=green&
+color=green&
+alias=lPal Tpt1&
+alias=lPal Tpt2
+
+// using url as divider 
+https://synapse-dev.isrd.isi.edu/synapse-viewer/view.html?
+stepX=0.26&stepY=0.26&stepZ=0.4&size=1&opacity=1&
+url=/hatrac/Zf/ZfDsy20160616A/CropImgZfDsy20160616A3A.segments-only.csv:XVT4FAX2PLYBELG6FERPMS63WM&
+color=green&
+alias=lPal%20Tpt1&
+url=/hatrac/Zf/ZfDsy20160616A/CropImgZfDsy20160616A6A.segments-only.csv:HQFZPBAL33L4IRWRBCLZP5SZUI&
+color=green&
+alias=lPal%20Tpt2
+
+
+https://synapse-dev.isrd.isi.edu/synapse-viewer/view.html?meta='[{"idx":0, "url":"%2Fhatrac%2FZf%2FZfDsy20160616A%2FCropImgZfDsy20160616A3A.segments-only.csv%3AXVT4FAX2PLYBELG6FERPMS63WM","stepX":0.26,"stepY":0.26,"stepZ":0.4,"size":1,"opacity":1, "color":"green"},{"idx":1, "url":"%2Fhatrac%2FZf%2FZfDsy20160616A%2FCropImgZfDsy20160616A6A.segments-only.csv%3AHQFZPBAL33L4IRWRBCLZP5SZUI","stepX":0.26,"stepY":0.26,"stepZ":0.4,"size":1,"opacity":1, "color":"green"}]'
+
+
+***/

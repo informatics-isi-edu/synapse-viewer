@@ -5,14 +5,14 @@ plotting 3D scatter plots with plotly.js for synapse dataset
 ## File Formats
 
 The viewer assumes a simple CSV file format with expected columns of
-**X**, **Y**, and **Z** are coordinates, and **raw core** is default 
+**X**, **Y**, and **Z** as coordinates, and **raw core** is the default 
 intensity value
 
 The synapse-viewer can be invoked with one or more CSV datafiles
 
 The viewer plots a single scatter point cloud when supplied with one
 CSV datafile and mulitple subplots when supplied with more than one 
-CSV datafiles.
+CSV datafiles
 
 
 ## Download and Run 

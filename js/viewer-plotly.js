@@ -726,10 +726,14 @@ window.console.log("raiseAll,  working on ",i," from, ",pidx);
 var spinning=false;
 function runSpin() {
   spinning = !spinning;
+  var btn = document.getElementById('spin-button');
   if(spinning) {
     var plot=saveThreeD; 
     var layout = plot._fullLayout['scene'];
     spinIt();
+    btn.style.color = 'grey';
+    } else {
+      btn.style.color = 'red';
   }
 }
 

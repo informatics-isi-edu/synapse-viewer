@@ -433,6 +433,39 @@ function ckExist(url) {
 /**************************************************************************
   sample examples
 
+http://localhost/synapse-viewer/view.html?
+  url=http://localhost/data/synapse/set/CropImgZfZdu20160825A4A.segments-only.csv&
+  color=green&
+  size=1&
+  stepX=0.26&
+  stepY=0.26&
+  stepZ=0.4&
+  title='Title of the plot'
+
+http://localhost/synapse-viewer/view.html?
+  url=http://localhost/data/synapse/segment1.csv&
+  url=http://localhost/data/synapse/segment2.csv&
+  url=http://localhost/data/synapse/segment3.csv&
+  url=http://localhost/data/synapse/segment4.csv&
+  stepX=0.26&
+  stepY=0.26&
+  stepZ=0.4&
+  size=3&
+  opacity=0.7&
+  alias="first one"&
+  alias="second file"&
+  size=7&opacity=0.4&
+  stepX=0.26&
+  stepY=0.26&
+  stepZ=0.6&
+  alias="third"&
+  size=2&
+  opacity=0.8&
+  color='orange'&
+  color='red'&
+  heat='raw hollow'
+
+
 meta = [ {"idx": 0, "url": url, "title": ..., "stepX": ..., "stepY": ..., "stepZ": ...,
          "size": ..., "opacity": ..., "color": ..., "hash": ...  },
          {"idx": 1, "url": url2, "title": ..., "stepX": ..., "stepY": ..., "stepZ": ...,
@@ -446,6 +479,5 @@ http://localhost/synapse-viewer/view.html?meta=[{"idx":0, "url":"http://localhos
 http://localhost/synapse-viewer/view.html?meta=[
 {"idx":0,"url":"http://localhost/data/synapse/segment2.csv","stepX":0.26,"stepY":0.26,"stepZ":0.4,"size":1,"color":"green"},
 {"idx":1,"url":"http://localhost/data/synapse/segment4.csv","stepX":0.26,"stepY":0.26,"stepZ":0.4,"size":2,"color":"blue"}]
-*/
 
 **************************************************************************/

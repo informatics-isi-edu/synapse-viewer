@@ -13,7 +13,6 @@ function dissmissPlots() {
 
 function removePlotsClick_btn()
 {
-window.console.log("IN HERE...");
   var btn = document.getElementById('plots-button');
   if(btn)
     btn.style.opacity =0;
@@ -23,13 +22,12 @@ window.console.log("IN HERE...");
 function plotsClick_btn() {
   using_button=true;
   plots_sidebar = !plots_sidebar;
-   if(plots_sidebar) {
+  var btn = document.getElementById('plots-button');
+  if(plots_sidebar) {
     togglePlotHeat(0,'fire_3Dscatter');
-    var btn = document.getElementById('plots-button');
     btn.style.color = 'blue';
     } else {
       togglePlotHeat(0,'fire_3Dscatter');
-      var btn = document.getElementById('plots-button');
       btn.style.color = 'grey';
   }
 }

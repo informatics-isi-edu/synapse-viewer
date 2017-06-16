@@ -22,6 +22,7 @@ You can clone the source repository with Git by running:
   git clone https://github.com/informatics-isi-edu/synapse-viewer.git
 
 and invoke the viewer as in **Examples**
+
 ## Parameters
  
 Parameters are optional and are organized per **url**, first in-first out. If

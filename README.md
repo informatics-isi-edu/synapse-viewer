@@ -92,3 +92,4 @@ Options of specifying meta global configuration and runtime local
 configuraiton in a json structured format is also available. Please see
 viewer-synapse.js for samples
 
+Sample plots are in sample1.png and sample2.png

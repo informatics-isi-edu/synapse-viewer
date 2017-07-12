@@ -7,6 +7,7 @@
 var DEBUG=false; // enable one of animation/spin/pull-out
 var START_THREED=true; // threeD one start with enabled mode
 var HAS_SUBPLOTS=false; // see if subplots needs to be made or not
+var START_HEATMAP=false;  // see if it needs to start with heatmap
 // 
 //   eye bars fire 'three D'
 //      eye data 
@@ -52,12 +53,20 @@ function setupPlotList(dlist) {
 
   nameOfPlot.push('3D scatter'); // selectable data
   trackingPlot[0]=true;
-  trackingPlotHeat[0]=false;
+  if(START_HEATMAP) {
+    trackingPlotHeat[0]=true;
+    } else {
+      trackingPlotHeat[0]=false;
+  }
 
   if(HAS_SUBPLOTS) { 
     nameOfPlot.push('Subplots'); // not selectable data
     trackingPlot[1]=true;
-    trackingPlotHeat[1]=false;
+    if(START_HEATMAP) {
+      trackingPlotHeat[1]=true;
+      } else {
+        trackingPlotHeat[1]=false;
+    }
   }
   add2PlotList();
 }
@@ -121,6 +130,7 @@ function addPlot(plot_idx, pname) {
   var _eye_name='eye_'+name;
   var _fire_name='fire_'+name;
   var _mark_name='mark_'+name;
+  var _is_heated=trackingPlotHeat[plot_idx];
 
   var _nn='';
   _nn+='<div class="panel panel-default col-md-12">';
@@ -133,7 +143,11 @@ if(moreThanOnePlot()) {
   
 // XXX subplots can not have heat option 
 if(name != "Subplots") {
-  _nn+='<button id="'+_heat_name+'" class="pull-left" style="margin-left: -5px;display:inline-block;outline: none;border:none; background-color:white"  onClick="togglePlotHeat('+plot_idx+',\''+_fire_name+'\')" title="toggle to heat scale"><span id="'+_fire_name+'" class="glyphicon glyphicon-fire" style="color:#337ab7;"></span> </button>';
+  if(_is_heated) {
+    _nn+='<button id="'+_heat_name+'" class="pull-left" style="margin-left: -5px;display:inline-block;outline: none;border:none; background-color:white"  onClick="togglePlotHeat('+plot_idx+',\''+_fire_name+'\')" title="toggle to heat scale"><span id="'+_fire_name+'" class="glyphicon glyphicon-cog" style="color:#337ab7;"></span> </button>';
+    } else {
+    _nn+='<button id="'+_heat_name+'" class="pull-left" style="margin-left: -5px;display:inline-block;outline: none;border:none; background-color:white"  onClick="togglePlotHeat('+plot_idx+',\''+_fire_name+'\')" title="toggle to heat scale"><span id="'+_fire_name+'" class="glyphicon glyphicon-fire" style="color:#337ab7;"></span> </button>';
+  }
 }
 
 // if there is only 1 data, no need to expand

@@ -150,7 +150,7 @@ function getScatter3DAt_set(fname,data,xkey, ykey, zkey, sz, op, mcolor,vis) {
                marker: {
                    color: mcolor,
                    size: sz,
-                   line: l,
+//                   line: l,
                    opacity: op 
                },
                type:"scatter3d" };
@@ -188,10 +188,11 @@ function getScatter3DAt_heat(fname,datalist,xkey, ykey, zkey, heatkey, visibleli
                mode: "markers",
                marker: {
                    color: mcolor,
-                   size: 3,
+                   size: 2,
                    line: {color: "black", width: 1},
-                   colorscale: 'Viridis',
+//                   colorscale: 'Viridis',
 //                   colorscale: 'Rainbow',
+                   colorscale: 'Greens',
                    cmax:cmax,
                    cmin:cmin,
                    colorbar: {
@@ -199,7 +200,7 @@ function getScatter3DAt_heat(fname,datalist,xkey, ykey, zkey, heatkey, visibleli
                           title:heatkey,
                           xpad:heatxpad
                              },
-                   opacity: 1 
+                   opacity: 0.6 
                },
                type:"scatter3d" };
    return data;
@@ -213,7 +214,7 @@ window.console.log("mrange is..",mrange);
     tmpx= { "title":xkey, 
             "showline": true,
             "ticks":"inside",
-            "linecolor": 'black',
+            "linecolor": '#3C3C3C', // black
             "nticks": ticks,
             "range" : mrange,
             "gridcolor" : '#3C3C3C',
@@ -221,7 +222,7 @@ window.console.log("mrange is..",mrange);
     tmpy= { "title":ykey,
             "showline": true,
             "ticks":"inside",
-            "linecolor": 'black',
+            "linecolor": '#3C3C3C', // black
             "nticks": ticks,
             "range" : mrange,
             "gridcolor" : '#3C3C3C',
@@ -229,7 +230,7 @@ window.console.log("mrange is..",mrange);
     tmpz= { "title":zkey,
             "showline": true,
             "ticks":"inside",
-            "linecolor": 'black',
+            "linecolor": '#3C3C3C', // black
             "nticks": ticks,
             "range" : mrange,
             "gridcolor" : '#3C3C3C',
@@ -261,9 +262,10 @@ window.console.log("mrange is..",mrange);
               b: 10,
               t: 10,
               },
-//      paper_bgcolor: '#eaeaea',
-paper_bgcolor:"rgb(31,31,31)",
-plot_bgcolor:"rgb(31,31,31)",
+//paper_bgcolor:"rgb(31,31,31)",
+//plot_bgcolor:"rgb(31,31,31)",
+paper_bgcolor:"rgb(0,0,0)",
+plot_bgcolor:"rgb(0,0,0)",
       showlegend: false,
       hovermode: 'closest',
       scene: {

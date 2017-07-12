@@ -463,7 +463,7 @@ http://localhost/synapse-viewer/view.html?
   opacity=0.8&
   color='orange'&
   color='red'&
-  heat='raw hollow'
+  heat='raw core'
 
 
 meta = [ {"idx": 0, "url": url, "title": ..., "stepX": ..., "stepY": ..., "stepZ": ...,

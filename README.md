@@ -12,7 +12,9 @@ The synapse-viewer can be invoked with one or more CSV datafiles
 
 The viewer plots a single scatter point cloud when supplied with one
 CSV datafile and mulitple subplots when supplied with more than one 
-CSV datafiles
+CSV datafiles. Currently, only subplot of CSV data files two is working 
+correctly for synchronized linking. More than 2 datafiles (in sets of twos)
+are possible but their linking control are not correctly coordinated.
 
 
 ## Download and Run 

@@ -40,6 +40,7 @@ defined.  They are used to alter the look and feel of the point cloud.
 | **color** | chars | trace color| **rgb(16,32,77)**, **blue**, **10204D**, or **#10204D**. There is a default set of color being used if none is specified |
 | **title** | chars | plot title | title of the plot |
 | **heat** | chars | column label | column to be use as the intensity values to color the data point |
+| **heatOn** | chars | true/false | scatter plot with data points colored by corresponding intensity values from the 'heat' column (ignored in subplot mode) |
 
 
 ## Examples
@@ -65,7 +66,8 @@ view.html?url=http://localhost/data/segment1.csv&
             opacity=0.7&
             alias='first one'&
             color=green&
-            heat='raw hollow'
+            heat='raw core'&
+            heatOn=true
 
 ```
 

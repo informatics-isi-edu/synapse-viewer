@@ -209,7 +209,7 @@ function getScatter3DAt_heat(fname,datalist,xkey, ykey, zkey, heatkey, visibleli
 function getScatter3DDefaultLayout(xkey,ykey,zkey,xrange,yrange,zrange,width,height,ticks, title){
   var mrange=getOverallMinMax([xrange, yrange, zrange]);
   var tmpx, tmpy, tmpz;
-window.console.log("mrange is..",mrange);
+//window.console.log("mrange is..",mrange);
   if(xrange && yrange && zrange) {
     tmpx= { "title":xkey, 
             "showline": true,

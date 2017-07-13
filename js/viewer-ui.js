@@ -106,7 +106,7 @@ function moreThanOneData(){
 }
 
 function moreThanOnePlot(){
-window.console.log("trackingPlot..", trackingPlot.length);
+//window.console.log("trackingPlot..", trackingPlot.length);
   if(trackingPlot.length > 1)
     return true;
   return false;
@@ -165,7 +165,7 @@ if(moreThanOneData()) {
   // last bits
   _nn+='</div> <!-- panel -->';
   jQuery('#plotList').append(_nn);
-  window.console.log(_nn);
+//  window.console.log(_nn);
   return _visible_name;
 }
 
@@ -206,7 +206,7 @@ function setupDataList(plot_idx, dlist) {
   var _body_name=plot_idx+"_plot_body";
   var pname= '#'+_body_name;
   jQuery(pname).append(tmp);
-window.console.log(tmp);
+//window.console.log(tmp);
 }
 
 // each data entry has an eye, color match with the color list

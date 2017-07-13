@@ -83,7 +83,7 @@ var myProcessArg=function(kvp0, kvp1) {
     case 'label': // to track iframelabel
       {
         var t=trimQ(kvp1);
-window.console.log("got label..", t);
+//window.console.log("got label..", t);
         initLabel=t;
         break;
       }
@@ -172,6 +172,14 @@ window.console.log("got label..", t);
              {
              var t=trimQ(kvp1);
              initHeatOn[trackidx]=t;
+             break;
+             }
+    case 'heatOn': // use heatmap version as initial state 
+             {
+             var t=trimQ(kvp1);
+             if(t == 'true') {
+               START_HEATMAP=true;
+             }
              break;
              }
     case "runurl":
@@ -282,9 +290,9 @@ function markerOpacity(s) {
 // mainly for suplots because the threeD plot can only
 // use 1 set of Aspects and everyone conforms to it.
 function polishAspects(s) {
-window.console.log("aspects.. for ",s);
+//window.console.log("aspects.. for ",s);
   if(initStepX.length == 0) {
-window.console.log("aspects.. using default");
+//window.console.log("aspects.. using default");
     return [1, 1, 1];
   }
 
@@ -297,9 +305,7 @@ window.console.log("aspects.. using default");
   var stepY=initStepY[t];
   var stepZ=initStepZ[t];
 
-window.console.log("aspects..start",stepX," ", stepY," ", stepZ);
   var min=Math.min.apply(Math,[stepX,stepY,stepZ]);
-window.console.log("aspects..",stepX/min," ", stepY/min," ", stepZ/min);
   return [stepX/min, stepY/min, stepZ/min ];
 }
 
@@ -463,7 +469,8 @@ http://localhost/synapse-viewer/view.html?
   opacity=0.8&
   color='orange'&
   color='red'&
-  heat='raw core'
+  heat='raw core'&
+  heatOn=true
 
 
 meta = [ {"idx": 0, "url": url, "title": ..., "stepX": ..., "stepY": ..., "stepZ": ...,

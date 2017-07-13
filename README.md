@@ -40,7 +40,7 @@ defined.  They are used to alter the look and feel of the point cloud.
 | **color** | chars | trace color| **rgb(16,32,77)**, **blue**, **10204D**, or **#10204D**. There is a default set of color being used if none is specified |
 | **title** | chars | plot title | title of the plot |
 | **heat** | chars | column label | column to be use as the intensity values to color the data point |
-| **heatOn** | chars | true/false | scatter plot with data points colored by corresponding intensity values from the 'heat' column (ignored in subplot mode) |
+| **heatOn** | chars | true/false | scatter plot with data points colored by corresponding intensity values from the 'heat' column |
 
 
 ## Examples
@@ -94,4 +94,4 @@ Options of specifying meta global configuration and runtime local
 configuraiton in a json structured format is also available. Please see
 viewer-synapse.js for samples
 
-Sample plots are in sample1.png and sample2.png
+Sample plots are in sample1.png, sample2.png and sample3.png

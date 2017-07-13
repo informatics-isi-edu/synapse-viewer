@@ -56,6 +56,8 @@ if(initOpacity[idx]==undefined)
   initOpacity[idx]=1;
 if(initAlias[idx]==undefined)
   initAlias[idx]=("foo"+idx);
+if(initHeatOn[idx]==undefined)
+  initHeatOn[idx]=('raw core');
 }
 
 //new parameters (per url file)

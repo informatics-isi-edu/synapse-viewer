@@ -9,7 +9,6 @@ var inZoomLoop=false;
 var zoomTrack=0;
 
 function addAPlot(divname, data, layout, w, h, mode) {
-window.console.log("calling addAPlot..");
   var d3 = Plotly.d3;
   var gd3 = d3.select(divname)
     .append('div')
@@ -95,6 +94,26 @@ function getOverallMinMax(ranges) {
   return [_min,_max];
 }
 
+// need to grab all the datalist's 'heat' field and then
+// find the overal min and max, it does not make sense of
+// different Heat Key though but the options is there. ie.
+// not restricting it
+function getMinMaxOfHeatIntensity(datalist,visiblelist) {
+   var cnt=datalist.length;
+   var mcolor=[];
+   for(var i=0; i< cnt; i++) {
+    if(visiblelist[i]) {
+      var d=datalist[i]; 
+      var heatkey=useHeatTerm(i);
+      var mm=getOriginalDataByKey(d,heatkey);
+      mcolor=mcolor.concat(mm);
+    }
+  }
+  var cmax=Math.max.apply(Math,mcolor);
+  var cmin=Math.min.apply(Math,mcolor);
+  return [cmin,cmax];
+}
+
 // for range 1:100, 1:100, 1:20, ratio is 1,1,0.2
 //http://stackoverflow.com/questions/37032687/plotly-3d-surface-change-cube-to-rectangular-space
 // very hacky!! assume all started at 0s
@@ -158,8 +177,10 @@ function getScatter3DAt_set(fname,data,xkey, ykey, zkey, sz, op, mcolor,vis) {
 }
 
 // combine all the data into a single trace before drawing it
-// fix the marker size and also the opacity
-function getScatter3DAt_heat(fname,datalist,xkey, ykey, zkey, heatkey, visiblelist, _thickness, heatxpad) {
+// fixed marker size and also the opacity
+// if custom cmax and cmin is defined, then use that to make the
+// colorbar range
+function getScatter3DAt_heat(fname,datalist,xkey, ykey, zkey, heatkey, visiblelist, _thickness, heatxpad, cmax, cmin, slabel) {
   var cnt=datalist.length;
   var d;
   var x=[];
@@ -180,8 +201,9 @@ function getScatter3DAt_heat(fname,datalist,xkey, ykey, zkey, heatkey, visibleli
     }
   }
 
-  var cmax=Math.max.apply(Math,mcolor);
-  var cmin=Math.min.apply(Math,mcolor);
+
+  var _cmax=(cmax!=null ? cmax:Math.max.apply(Math,mcolor));
+  var _cmin=(cmin!=null ? cmin:Math.min.apply(Math,mcolor));
   var data= {  x: x,
                y: y,
                z: z,
@@ -193,8 +215,8 @@ function getScatter3DAt_heat(fname,datalist,xkey, ykey, zkey, heatkey, visibleli
 //                   colorscale: 'Viridis',
 //                   colorscale: 'Rainbow',
                    colorscale: 'Greens',
-                   cmax:cmax,
-                   cmin:cmin,
+                   cmax:_cmax,
+                   cmin:_cmin,
                    colorbar: {
                           thickness: _thickness,
                           title:heatkey,
@@ -203,13 +225,15 @@ function getScatter3DAt_heat(fname,datalist,xkey, ykey, zkey, heatkey, visibleli
                    opacity: 0.6 
                },
                type:"scatter3d" };
+   if(slabel != null) {
+     data.scene=slabel;
+   }
    return data;
 }
 
 function getScatter3DDefaultLayout(xkey,ykey,zkey,xrange,yrange,zrange,width,height,ticks, title){
   var mrange=getOverallMinMax([xrange, yrange, zrange]);
   var tmpx, tmpy, tmpz;
-//window.console.log("mrange is..",mrange);
   if(xrange && yrange && zrange) {
     tmpx= { "title":xkey, 
             "showline": true,
@@ -279,14 +303,18 @@ plot_bgcolor:"rgb(0,0,0)",
                    center: {x:0,y:0,z:0}}
       }
       };
-window.console.log(p);
   return p;
 }
 
 // need to make the whole set and then turn the untracked 
 // trace to be invisible
-// the heat version is just to rebuilt the whole set from 
-// scratch
+// plot_idx=0, the single plot view (includes one or more datasets)
+//   the heat version is to build a new data set from all
+//   visible datasets from scratch and process as such
+// plot_idx=1, the subplots view (one dataset per subplot)
+//   the heat version is just per dataset 
+// heated version has fixed opacity and also fixed marker size
+//
 function addThreeD(plot_idx,keyX,keyY,keyZ, config, fwidth, fheight, title) {
   var datalist=config[0];
   var colorlist=config[1];
@@ -310,7 +338,8 @@ function addThreeD(plot_idx,keyX,keyY,keyZ, config, fwidth, fheight, title) {
     }
   
     var tmp=getScatter3DAt_heat(namelist, datalist, keyX, keyY, keyZ,
-                   useHeatTerm(0),visiblelist, thickness, heatxpad);
+           useHeatTerm(0),visiblelist, thickness, heatxpad,
+           null,null,null);
     _data.push(tmp);
     } else {
     for( var i=0; i<cnt; i++) {
@@ -434,6 +463,8 @@ function onTrace(plot_idx,data_idx) {
   }
 }
 // just two at a time..
+// in the heat mode, the data needs to be 'normalized' together with
+// a consolidated scale bar,
 function addSubplots(plot_idx,keyX,keyY,keyZ, config, fwidth,fheight) {
   var datalist=config[0];
   var colorlist=config[1];
@@ -449,16 +480,32 @@ function addSubplots(plot_idx,keyX,keyY,keyZ, config, fwidth,fheight) {
   var _width=fwidth;
   var _height=fheight/set;
 
+  // add two at a time and skip the last oddball one
   var _data;
+  var tmp;
+  var title1;
+  var title2;
+  var m=getMinMaxOfHeatIntensity(datalist,visiblelist);
+  var _cmin=m[0];
+  var _cmax=m[1];
   for(var i=0; i<cnt;) {
     _data=[];
-    var tmp=getSubplotsAt(namelist[i], datalist[i], keyX, keyY, keyZ, colorlist[i], "scene");
+    if(useHeat(i)) {
+      tmp=getSubplotsAt_heat(namelist[i], datalist[i], keyX, keyY, keyZ, useHeatTerm(i), visiblelist[i], colorlist[i], "scene", _width, _cmax,_cmin);
+      } else {
+        tmp=getSubplotsAt(namelist[i], datalist[i], keyX, keyY, keyZ, colorlist[i], "scene");
+    }
     _data.push(tmp);
-    var title1=aliaslist[i];
+
+    title1=aliaslist[i];
     i++;
-    tmp=getSubplotsAt(namelist[i], datalist[i], keyX, keyY, keyZ, colorlist[i], "scene2");
+    if(useHeat(i)) {
+      tmp=getSubplotsAt_heat(namelist[i], datalist[i], keyX, keyY, keyZ, useHeatTerm(i), visiblelist[i], colorlist[i], "scene2", _width, _cmax,_cmin);
+      } else {
+        tmp=getSubplotsAt(namelist[i], datalist[i], keyX, keyY, keyZ, colorlist[i], "scene2");
+    }
     _data.push(tmp);
-    var title2=aliaslist[i];
+    title2=aliaslist[i];
     i++;
     var _layout=getSubplotsDefaultLayout(keyX,keyY,keyZ,
                 saveRangeX, saveRangeY, saveRangeZ, 
@@ -495,28 +542,44 @@ function getSubplotsAt(fname,data,xkey, ykey, zkey, mcolor, slabel) {
    return data;
 }
 
+
+// can reuse the getScatter3DAt_heat with tweaked configuration
+function getSubplotsAt_heat(fname,data,xkey, ykey, zkey, heatkey,
+visible, color, slabel, width,cmax,cmin) {
+    var _thickness=30; // default
+    var _heatxpad=10;
+    if(width < 400) {
+      _thickness=10;
+      _heatxpad=0;
+    }
+
+    var data=getScatter3DAt_heat([fname],[data],xkey, ykey, zkey, heatkey, [visible], _thickness, _heatxpad,cmax,cmin,slabel);
+
+    return data;
+}
+
+
 function getSubplotsDefaultLayout(xkey,ykey,zkey,xrange,yrange,zrange,width,height,title1, title2){
   var tmpx, tmpy, tmpz;
   if(xrange && yrange && zrange) {
   var mrange=getOverallMinMax([xrange, yrange, zrange]);
   var _aspectratio={ x:1, y:1, z:1 };
-window.console.log("calc aspectratio..",_aspectratio);
+//window.console.log("calc aspectratio..",_aspectratio);
     tmpx= { "title":xkey, 
-//'#636363',
             "showline": true,
-            "linecolor": 'black',
+            "linecolor": '#3C3C3C',
             "linewidth": 2,
             "gridcolor" : '#3C3C3C',
             "range": mrange };
     tmpy= { "title":ykey,
             "showline": true,
-            "linecolor": 'black',
+            "linecolor": '#3C3C3C',
             "linewidth": 2,
             "gridcolor" : '#3C3C3C',
             "range": mrange };
     tmpz= { "title":zkey,
             "showline": true,
-            "linecolor": 'black',
+            "linecolor": '#3C3C3C',
             "linewidth": 2,
             "gridcolor" : '#3C3C3C',
              "range": mrange };
@@ -528,8 +591,8 @@ window.console.log("calc aspectratio..",_aspectratio);
   var p= {
       width: width,
       height: height,
-      paper_bgcolor:"rgb(31,31,31)",
-      plot_bgcolor:"rgb(31,31,31)",
+      paper_bgcolor:"rgb(0,0,0)",
+      plot_bgcolor:"rgb(0,0,0)",
       showlegend: false,
       hovermode: 'closest',
       annotations: [
@@ -597,7 +660,6 @@ function getSubplotsTracking(target) {
   var cnt=saveSubplots.length;
   for(var i=0; i<cnt; i++) {
     if( saveSubplots[i]==target ) {
- window.console.log("getSubplots..",i);
       return i;
     }
   }
@@ -633,7 +695,7 @@ function setupZoom(plot) {
     function(eventdata){  
         var pidx=getSubplotsTracking(plot);
 
-window.console.log("ZOOM, for ",pidx," eventdata, --", JSON.stringify(eventdata));
+//window.console.log("ZOOM, for ",pidx," eventdata, --", JSON.stringify(eventdata));
         if(!withZoomLock) { // no need to sync
           return; 
           } else {  // need to sync
@@ -641,26 +703,20 @@ window.console.log("ZOOM, for ",pidx," eventdata, --", JSON.stringify(eventdata)
             // if it is the first zoom
             var firstOne=false;
             if(zoomTrack==0) { // the first one
-window.console.log("FFF, first plotly relay call..");
               firstOne=true;
               raiseAll(pidx,eventdata);
             }
             if(zoomTrack == 0) { //again, last one..
-window.console.log("FFF, last plotly relay call..");
               return;
             }
 
             if(!inZoom(pidx)) { // sync the same pair
-window.console.log("SSS, first start on the zooming..",pidx);
               setInZoom(pidx,firstOne);
               } else { // already inZoom  
-window.console.log("SSS, already in zoom..", pidx);
 // need to determine if this is the first call then return
 // else need to zoom the current one..
                 if(isFirstInZoom(pidx)) {
-window.console.log("SSSFFF, in zoom and also first one..", pidx);
                   } else {
-window.console.log("SSSNNN, in zoom and not first one..", pidx);
 /* this causes recursion
               var _tmp=eventdata['scene2'];
               if(_tmp) {
@@ -678,15 +734,12 @@ window.console.log("SSSNNN, in zoom and not first one..", pidx);
                 return;
             }
 
-window.console.log("SSS, process a plot,",pidx);
             if( 'scene' in eventdata ) {
               var _tmp=eventdata['scene'];
-window.console.log("ZOOM, process for >scene2< of ",pidx);
               zoomIn(plot,pidx, 'scene2',_tmp.eye);
             }
             if( 'scene2' in eventdata ) {
               var _tmp=eventdata['scene2'];
-window.console.log("ZOOM, process for >scene< of ",pidx);
               zoomIn(plot,pidx, 'scene',_tmp.eye);
             }
         }
@@ -707,12 +760,10 @@ function zoomIn(plot,pidx, id, eye) {
 }
 
 function raiseAll(pidx,data) {
-window.console.log("raiseAll, for ",pidx);
   var cnt=saveSubplots.length;
   zoomTrack=cnt;
   for(var i=0; i<cnt; i++) {
     if(i != pidx) {
-window.console.log("raiseAll,  working on ",i," from, ",pidx);
       var _plot=saveSubplots[i];
       Plotly.relayout(_plot, data);
     }

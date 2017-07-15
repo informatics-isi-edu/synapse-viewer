@@ -3,10 +3,7 @@
 //
 var saveThreeD; // first one is threeD, 2nd is subplots
 var saveSubplots=[];
-var saveSubplotsTracking=[]; // -1 not inZoom, 0 inZoom, 1 inZoom and firstOne
-var withZoomLock=true; // subplots zooming mode, sync or not
-var inZoomLoop=false;
-var zoomTrack=0;
+var inZoom=false;
 
 function addAPlot(divname, data, layout, w, h, mode) {
   var d3 = Plotly.d3;
@@ -316,6 +313,10 @@ plot_bgcolor:"rgb(0,0,0)",
 // heated version has fixed opacity and also fixed marker size
 //
 function addThreeD(plot_idx,keyX,keyY,keyZ, config, fwidth, fheight, title) {
+
+  if(!START_THREED)
+    return null;
+window.console.log("addThreeD!!!!");
   var datalist=config[0];
   var colorlist=config[1];
   var namelist=config[2];
@@ -332,7 +333,7 @@ function addThreeD(plot_idx,keyX,keyY,keyZ, config, fwidth, fheight, title) {
   if(useHeat(plot_idx)) {
     var thickness=30; // default
     var heatxpad=10;
-    if(_width < 400) {
+    if(_width < 500) {
       thickness=10;
       heatxpad=0;
     }
@@ -350,7 +351,7 @@ function addThreeD(plot_idx,keyX,keyY,keyZ, config, fwidth, fheight, title) {
   }
 
   var _nticks=0; // default is 0-(don't care)
-  if(_width < 400) {
+  if(_width < 500) {
     _nticks=5;
   }
   // special case, 
@@ -358,8 +359,8 @@ function addThreeD(plot_idx,keyX,keyY,keyZ, config, fwidth, fheight, title) {
               saveRangeX, saveRangeY, saveRangeZ, 
               _width, _height, _nticks, title);
   var plot;
-// do not show mobar if the window is smaller than 400
-  if(_width > 400)
+// do not show mobar if the window is smaller than 500
+  if(_width > 500)
     plot=addAPlot(scatterDivname,_data, _layout, _width, _height, true);
     else
       plot=addAPlot(scatterDivname,_data, _layout, _width, _height, false);
@@ -474,50 +475,64 @@ function addSubplots(plot_idx,keyX,keyY,keyZ, config, fwidth,fheight) {
   var visiblelist=config[5];
   var aliaslist=config[6];
    
-  var _data=[];
   var cnt=datalist.length;
   var set=cnt/2;
   var _width=fwidth;
-  var _height=fheight/set;
+  var _height=fheight;
 
   // add two at a time and skip the last oddball one
-  var _data;
+  var _data=[];
   var tmp;
-  var title1;
-  var title2;
   var m=getMinMaxOfHeatIntensity(datalist,visiblelist);
   var _cmin=m[0];
   var _cmax=m[1];
+  var _scenelist=[];
+  var _titlelist=[];
+  var _scene;
+  var _scene2;
+
+
   for(var i=0; i<cnt;) {
-    _data=[];
-    if(useHeat(i)) {
-      tmp=getSubplotsAt_heat(namelist[i], datalist[i], keyX, keyY, keyZ, useHeatTerm(i), visiblelist[i], colorlist[i], "scene", _width, _cmax,_cmin);
+    if(i==0) {
+      _scene='scene';
       } else {
-        tmp=getSubplotsAt(namelist[i], datalist[i], keyX, keyY, keyZ, colorlist[i], "scene");
+        var j=i+1;
+        _scene='scene'+j;
+    }
+
+    if(useHeat(plot_idx)) {
+      tmp=getSubplotsAt_heat(namelist[i], datalist[i], keyX, keyY, keyZ, useHeatTerm(i), visiblelist[i], colorlist[i], _scene, _width, _cmax,_cmin);
+      } else {
+        tmp=getSubplotsAt(namelist[i], datalist[i], keyX, keyY, keyZ, colorlist[i], _scene);
     }
     _data.push(tmp);
 
-    title1=aliaslist[i];
+    _titlelist.push(aliaslist[i]);
     i++;
-    if(useHeat(i)) {
-      tmp=getSubplotsAt_heat(namelist[i], datalist[i], keyX, keyY, keyZ, useHeatTerm(i), visiblelist[i], colorlist[i], "scene2", _width, _cmax,_cmin);
+    var j=i+1;
+    _scene2='scene'+j;
+    if(useHeat(plot_idx)) {
+      tmp=getSubplotsAt_heat(namelist[i], datalist[i], keyX, keyY, keyZ, useHeatTerm(i), visiblelist[i], colorlist[i], _scene2, _width, _cmax,_cmin);
       } else {
-        tmp=getSubplotsAt(namelist[i], datalist[i], keyX, keyY, keyZ, colorlist[i], "scene2");
+        tmp=getSubplotsAt(namelist[i], datalist[i], keyX, keyY, keyZ, colorlist[i], _scene2);
     }
     _data.push(tmp);
-    title2=aliaslist[i];
+    _scenelist.push(_scene);
+    _scenelist.push(_scene2);
+    _titlelist.push(aliaslist[i]);
     i++;
-    var _layout=getSubplotsDefaultLayout(keyX,keyY,keyZ,
-                saveRangeX, saveRangeY, saveRangeZ, 
-                _width, _height,title1,title2);
-
-    // layout's title..
-
-    var plot=addAPlot(subplotsDivname,_data, _layout, _width, _height, false);
-    setupZoom(plot);
-    saveSubplots.push(plot);
-    pushInZoom();
   }
+
+  var _layout=getSubplotsDefaultLayout(keyX,keyY,keyZ,
+                saveRangeX, saveRangeY, saveRangeZ, 
+                _width, _height,_titlelist, _scenelist);
+
+  // layout's title..
+
+  var plot=addAPlot(subplotsDivname,_data, _layout, _width, _height, false);
+  setupZoom(plot,_scenelist);
+  saveSubplots.push(plot);
+
   return saveSubplots;
 }
 
@@ -548,7 +563,7 @@ function getSubplotsAt_heat(fname,data,xkey, ykey, zkey, heatkey,
 visible, color, slabel, width,cmax,cmin) {
     var _thickness=30; // default
     var _heatxpad=10;
-    if(width < 400) {
+    if(width < 500) {
       _thickness=10;
       _heatxpad=0;
     }
@@ -558,8 +573,71 @@ visible, color, slabel, width,cmax,cmin) {
     return data;
 }
 
+function makeALayoutSet(tmpx,tmpy,tmpz,_aspectratio,title1, title2, scene1, scene2, setidx,setcnt)
+{
+  var ydelta=1/setcnt;
+  var yval=1-(setidx * ydelta);
+  var anno=[{
+          x: 0.25, 
+          y: yval,
+          font: {size: 16, color: '#666666'}, 
+          showarrow: false, 
+          text: title1, 
+          xanchor: 'center', 
+          xref: 'paper', 
+          yanchor: 'bottom', 
+          yref: 'paper'
+        }, 
+        {
+          x: 0.75, 
+          y: yval,
+          font: {size: 16, color:'#666666'}, 
+          showarrow: false, 
+          text: title2, 
+          xanchor: 'center', 
+          xref: 'paper', 
+          yanchor: 'bottom', 
+          yref: 'paper'
+        }]; 
 
-function getSubplotsDefaultLayout(xkey,ykey,zkey,xrange,yrange,zrange,width,height,title1, title2){
+    var dy1=(setcnt-setidx-1)*ydelta+0.02;
+    var dy2=dy1+ydelta-0.02;
+   
+    var domain_y1=[dy1,dy2];
+    var domain_y2=[dy1,dy2];
+    var s1_v={ title: title1,
+               xaxis: tmpx,
+               yaxis: tmpy,
+               zaxis: tmpz,
+               aspectratio : _aspectratio,
+               camera : { eye:{x:1,y:1,z:1},
+                          up: {x:0,y:0,z:1},
+                          center: {x:0,y:0,z:0}},
+               domain: {
+                       x: [0.0,  0.5],
+                       y: domain_y1 
+             }};
+    var s2_v= {
+        title:title2,
+        xaxis: tmpx,
+        yaxis: tmpy,
+        zaxis: tmpz,
+        aspectratio : _aspectratio,
+        camera : { eye:{x:1,y:1,z:1},
+                   up: {x:0,y:0,z:1},
+                   center: {x:0,y:0,z:0}},
+        domain: {
+            x: [0.5, 1.0],
+            y: domain_y2 
+        }};
+
+   return [anno, s1_v, s2_v ];
+}
+function getSubplotsDefaultLayout(xkey,ykey,zkey,xrange,yrange,zrange,width,height,titlelist, scenelist){
+
+  var cnt=titlelist.length;
+  var sets=cnt/2;
+
   var tmpx, tmpy, tmpz;
   if(xrange && yrange && zrange) {
   var mrange=getOverallMinMax([xrange, yrange, zrange]);
@@ -588,6 +666,7 @@ function getSubplotsDefaultLayout(xkey,ykey,zkey,xrange,yrange,zrange,width,heig
       tmpy= { "title":ykey };
       tmpz= { "title":zkey };
   }
+  var annotation_val=[];
   var p= {
       width: width,
       height: height,
@@ -595,158 +674,66 @@ function getSubplotsDefaultLayout(xkey,ykey,zkey,xrange,yrange,zrange,width,heig
       plot_bgcolor:"rgb(0,0,0)",
       showlegend: false,
       hovermode: 'closest',
-      annotations: [
-        {
-          x: 0.25, 
-          y: 1.0, 
-          font: {size: 16, color: '#666666'}, 
-          showarrow: false, 
-          text: title1, 
-          xanchor: 'center', 
-          xref: 'paper', 
-          yanchor: 'bottom', 
-          yref: 'paper'
-        }, 
-        {
-          x: 0.75, 
-          y: 1.0, 
-          font: {size: 16, color:'#666666'}, 
-          showarrow: false, 
-          text: title2, 
-          xanchor: 'center', 
-          xref: 'paper', 
-          yanchor: 'bottom', 
-          yref: 'paper'
-        }], 
-    scene: {
-        title: 'title1',
-        xaxis: tmpx,
-        yaxis: tmpy,
-        zaxis: tmpz,
-        aspectratio : _aspectratio,
-        camera : { eye:{x:1,y:1,z:1},
-                   up: {x:0,y:0,z:1},
-                   center: {x:0,y:0,z:0}},
-        domain: {
-            x: [0.0,  0.5],
-            y: [0, 1]
-        },},
-    scene2: {
-        xaxis: tmpx,
-        yaxis: tmpy,
-        zaxis: tmpz,
-        aspectratio : _aspectratio,
-        camera : { eye:{x:1,y:1,z:1},
-                   up: {x:0,y:0,z:1},
-                   center: {x:0,y:0,z:0}},
-        domain: {
-            x: [0.5, 1.0],
-            y: [0, 1]
-        }},
-    margin: {
-    l: 5,
-    r: 5,
-    b: 5,
-    t: 30,
-    pad:10,
-        },
-      };
+      annotations: [],
+      margin: {
+        l: 5,
+        r: 5,
+        b: 5,
+        t: 30,
+        pad:10 }
+     };
+
+   for(var setidx=0; setidx < sets; setidx++) {
+      var first=setidx*2;
+      var second=(setidx*2)+1;
+      var title1=titlelist[first];
+      var title2=titlelist[second];
+      var scene1=scenelist[first];
+      var scene2=scenelist[second];
+      var tmp=makeALayoutSet(tmpx,tmpy,tmpz,_aspectratio,title1, title2, scene1, scene2, setidx, sets);
+      var anno=tmp[0];
+      var s1_v=tmp[1];
+      var s2_v=tmp[2];
+      p['annotations']=p['annotations'].concat(anno);
+      p[scene2]=s2_v;
+      p[scene1]=s1_v;
+   }
 //window.console.log(p);
   return p;
 }
 
 /************ZOOM**********************************/
-function getSubplotsTracking(target) {
-  var cnt=saveSubplots.length;
-  for(var i=0; i<cnt; i++) {
-    if( saveSubplots[i]==target ) {
-      return i;
-    }
-  }
-  window.console.log("PANIC!! no correponding subplots..");  
-  return 0;
-}
-
-//saveSubplotsTracking, -1 not inZoom, 0 inZoom, 1 inZoom&&firstOne
-function pushInZoom() {
-  saveSubplotsTracking.push(-1);
-}
-
-function inZoom(pidx) {
-  return (saveSubplotsTracking[pidx] != -1);
-}
-
-function isFirstInZoom(pidx) {
-  return (saveSubplotsTracking[pidx] == 1);
-}
-
-function setInZoom(pidx,firstOne) {
-  if(firstOne)
-    saveSubplotsTracking[pidx]=1;
-    else
-      saveSubplotsTracking[pidx]=0;
-}
-function unsetInZoom(pidx) {
-  saveSubplotsTracking[pidx]=-1;
-}
-
-function setupZoom(plot) {
+function setupZoom(plot,scenelist) {
   plot.on('plotly_relayout',
     function(eventdata){  
-        var pidx=getSubplotsTracking(plot);
 
-//window.console.log("ZOOM, for ",pidx," eventdata, --", JSON.stringify(eventdata));
-        if(!withZoomLock) { // no need to sync
+        if(inZoom) { // no need relay down
           return; 
           } else {  // need to sync
-
-            // if it is the first zoom
-            var firstOne=false;
-            if(zoomTrack==0) { // the first one
-              firstOne=true;
-              raiseAll(pidx,eventdata);
-            }
-            if(zoomTrack == 0) { //again, last one..
-              return;
-            }
-
-            if(!inZoom(pidx)) { // sync the same pair
-              setInZoom(pidx,firstOne);
-              } else { // already inZoom  
-// need to determine if this is the first call then return
-// else need to zoom the current one..
-                if(isFirstInZoom(pidx)) {
-                  } else {
-/* this causes recursion
-              var _tmp=eventdata['scene2'];
-              if(_tmp) {
-                zoomIn(plot,pidx, 'scene',_tmp.eye);
+            inZoom=true;
+            var cnt=scenelist.length;
+            var _tmp;
+            var _tmpidx;
+            for(var sidx=0; sidx <cnt; sidx++) {
+              var scene=scenelist[sidx];
+              if(scene in eventdata) {
+                 _tmp=eventdata[scene];
+                 _tmpidx=sidx;
+                 break;
               }
-              _tmp=eventdata['scene'];
-              if(_tmp) {
-                zoomIn(plot,pidx, 'scene2',_tmp.eye);
-              }
-*/
-                }
-                if(zoomTrack > 0)
-                  zoomTrack--;
-                unsetInZoom(pidx);
-                return;
             }
-
-            if( 'scene' in eventdata ) {
-              var _tmp=eventdata['scene'];
-              zoomIn(plot,pidx, 'scene2',_tmp.eye);
+            for(var sidx=0; sidx <cnt; sidx++) {
+              if(sidx == _tmpidx)
+                continue;
+              var scene=scenelist[sidx];
+              zoomIn(plot,scene,_tmp.eye);
             }
-            if( 'scene2' in eventdata ) {
-              var _tmp=eventdata['scene2'];
-              zoomIn(plot,pidx, 'scene',_tmp.eye);
-            }
+            inZoom=false;
         }
     });
 }
 
-function zoomIn(plot,pidx, id, eye) {
+function zoomIn(plot,id, eye) {
   var scene = plot._fullLayout[id]._scene;
   var camera = scene.getCamera();
   var _x=eye.x;
@@ -755,19 +742,7 @@ function zoomIn(plot,pidx, id, eye) {
   var _eye={x:_x, y:_y, z:_z };
   camera.eye=_eye;
   scene.setCamera(camera); // this causes relayout event
-//window.console.log("zoomIn..relayout ",pidx," for ",id);
 //  Plotly.relayout(plot, camera);
-}
-
-function raiseAll(pidx,data) {
-  var cnt=saveSubplots.length;
-  zoomTrack=cnt;
-  for(var i=0; i<cnt; i++) {
-    if(i != pidx) {
-      var _plot=saveSubplots[i];
-      Plotly.relayout(_plot, data);
-    }
-  }
 }
 
       

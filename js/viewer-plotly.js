@@ -337,7 +337,7 @@ window.console.log("addThreeD!!!!");
     var thickness=30; // default
     var heatxpad=10;
     if(_width < 500) {
-      thickness=5;
+      thickness=4;
       heatxpad=0;
     }
   
@@ -567,7 +567,7 @@ visible, color, slabel, width,cmax,cmin) {
     var _thickness=30; // default
     var _heatxpad=10;
     if(width < 500) {
-      _thickness=10;
+      _thickness=4;
       _heatxpad=0;
     }
 

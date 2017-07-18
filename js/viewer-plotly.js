@@ -198,6 +198,12 @@ function getScatter3DAt_heat(fname,datalist,xkey, ykey, zkey, heatkey, visibleli
     }
   }
 
+  var text=[];
+  var fcnt=mcolor.length;
+  for(var f=0;f<fcnt;f++) {
+     var tmp='Intensity:'+mcolor[f];
+     text.push(tmp);
+  }
 
   var _cmax=(cmax!=null ? cmax:Math.max.apply(Math,mcolor));
   var _cmin=(cmin!=null ? cmin:Math.min.apply(Math,mcolor));
@@ -205,6 +211,9 @@ function getScatter3DAt_heat(fname,datalist,xkey, ykey, zkey, heatkey, visibleli
                y: y,
                z: z,
                mode: "markers",
+               text: text,
+//hoverinfo: 'text',
+//hoverlabel: { bgcolor: 'red', font: {size: 10, color: 'red'} },
                marker: {
                    color: mcolor,
                    size: 1,
@@ -215,7 +224,6 @@ function getScatter3DAt_heat(fname,datalist,xkey, ykey, zkey, heatkey, visibleli
                    cmax:_cmax,
                    cmin:_cmin,
                    colorbar: {
-//XX
                           x:heatx,
                           len:0.8,
                           thickness: _thickness,

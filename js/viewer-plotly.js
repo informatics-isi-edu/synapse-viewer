@@ -201,7 +201,7 @@ function getScatter3DAt_heat(fname,datalist,xkey, ykey, zkey, heatkey, visibleli
   var text=[];
   var fcnt=mcolor.length;
   for(var f=0;f<fcnt;f++) {
-     var tmp='Intensity:'+mcolor[f];
+     var tmp=heatkey+ ':'+mcolor[f];
      text.push(tmp);
   }
 
@@ -373,11 +373,17 @@ window.console.log("addThreeD!!!!");
               saveRangeX, saveRangeY, saveRangeZ, 
               _width, _height, _nticks, title);
   var plot;
-// do not show mobar if the window is smaller than 500
-  if(_width > 500)
+// do not show mobar and suppress hover label if the window is smaller than 500
+  if(_width > 500) {
     plot=addAPlot(scatterDivname,_data, _layout, _width, _height, true);
-    else
+    }
+    else {
+      var dlen=_data.length;
+      for(var i=0;i<dlen;i++) {
+        _data[i].hoverinfo='none';
+      }
       plot=addAPlot(scatterDivname,_data, _layout, _width, _height, false);
+  }
 
   saveThreeD=plot;
   return plot;

@@ -207,7 +207,7 @@ function getScatter3DAt_heat(fname,datalist,xkey, ykey, zkey, heatkey, visibleli
                mode: "markers",
                marker: {
                    color: mcolor,
-                   size: 2,
+                   size: 1,
 //                   line: {color: "black", width: 1},
 //                   colorscale: 'Viridis',
 //                   colorscale: 'Rainbow',

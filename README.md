@@ -33,10 +33,10 @@ defined.  They are used to alter the look and feel of the point cloud.
 | **stepX** | float | scale on x axis | microns-per-pixel grid spacing for X dimension |
 | **stepY** | float | scale on y axis | microns-per-pixel grid spacing for Y dimension | 
 | **stepZ** | float | scale on z axis | microns-per-pixel grid spacing for Z dimension |
-| **size** | integer | marker size | data point's pixel size |
-| **opacity** | float | marker opacity | data point's opacity, range from 0 to 1  |
+| **size** | integer | marker size | data point's pixel size (NA for intensity scatter plot)|
+| **opacity** | float | marker opacity | data point's opacity, range from 0 to 1(NA for intensity scatter plot)|
 | **alias** | chars | datafile | label for datafile |
-| **color** | chars | trace color| **rgb(16,32,77)**, **blue**, **10204D**, or **#10204D**. There is a default set of color being used if none is specified |
+| **color** | chars | trace color| **rgb(16,32,77)**, **blue**, **10204D**, or **#10204D**. There is a default set of color being used if none is specified(NA for intensity scatter plot)|
 | **title** | chars | plot title | title of the plot |
 | **heat** | chars | column label | column to be use as the intensity values to color the data point |
 | **heatOn** | chars | true/false | scatter plot with data points colored by corresponding intensity values from the 'heat' column |

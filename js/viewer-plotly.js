@@ -337,7 +337,7 @@ window.console.log("addThreeD!!!!");
     var thickness=30; // default
     var heatxpad=10;
     if(_width < 500) {
-      thickness=10;
+      thickness=5;
       heatxpad=0;
     }
   

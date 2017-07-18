@@ -212,8 +212,6 @@ function getScatter3DAt_heat(fname,datalist,xkey, ykey, zkey, heatkey, visibleli
                z: z,
                mode: "markers",
                text: text,
-//hoverinfo: 'text',
-//hoverlabel: { bgcolor: 'red', font: {size: 10, color: 'red'} },
                marker: {
                    color: mcolor,
                    size: 1,

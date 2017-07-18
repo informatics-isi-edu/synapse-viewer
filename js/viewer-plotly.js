@@ -177,7 +177,7 @@ function getScatter3DAt_set(fname,data,xkey, ykey, zkey, sz, op, mcolor,vis) {
 // fixed marker size and also the opacity
 // if custom cmax and cmin is defined, then use that to make the
 // colorbar range
-function getScatter3DAt_heat(fname,datalist,xkey, ykey, zkey, heatkey, visiblelist, _thickness, heatxpad, cmax, cmin, slabel) {
+function getScatter3DAt_heat(fname,datalist,xkey, ykey, zkey, heatkey, visiblelist, _thickness, heatxpad, heatx, cmax, cmin, slabel) {
   var cnt=datalist.length;
   var d;
   var x=[];
@@ -216,6 +216,7 @@ function getScatter3DAt_heat(fname,datalist,xkey, ykey, zkey, heatkey, visibleli
                    cmin:_cmin,
                    colorbar: {
 //XX
+                          x:heatx,
                           len:0.8,
                           thickness: _thickness,
                           title:heatkey,
@@ -336,13 +337,15 @@ window.console.log("addThreeD!!!!");
   if(useHeat(plot_idx)) {
     var thickness=30; // default
     var heatxpad=10;
+    var heatx=0.85;
     if(_width < 500) {
       thickness=4;
+      heatx=1.1;
       heatxpad=0;
     }
   
     var tmp=getScatter3DAt_heat(namelist, datalist, keyX, keyY, keyZ,
-           useHeatTerm(0),visiblelist, thickness, heatxpad,
+           useHeatTerm(0),visiblelist, thickness, heatxpad,heatx,
            null,null,null);
     _data.push(tmp);
     } else {
@@ -566,12 +569,14 @@ function getSubplotsAt_heat(fname,data,xkey, ykey, zkey, heatkey,
 visible, color, slabel, width,cmax,cmin) {
     var _thickness=30; // default
     var _heatxpad=10;
+    var _heatx=0.85;
     if(width < 500) {
       _thickness=4;
+      _heatx=1.1;
       _heatxpad=0;
     }
 
-    var data=getScatter3DAt_heat([fname],[data],xkey, ykey, zkey, heatkey, [visible], _thickness, _heatxpad,cmax,cmin,slabel);
+    var data=getScatter3DAt_heat([fname],[data],xkey, ykey, zkey, heatkey, [visible], _thickness, _heatxpad,_heatx,cmax,cmin,slabel);
 
     return data;
 }

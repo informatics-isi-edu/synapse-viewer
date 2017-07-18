@@ -215,8 +215,11 @@ function getScatter3DAt_heat(fname,datalist,xkey, ykey, zkey, heatkey, visibleli
                    cmax:_cmax,
                    cmin:_cmin,
                    colorbar: {
+//XX
+                          len:0.8,
                           thickness: _thickness,
                           title:heatkey,
+                          titleside:'top',
                           xpad:heatxpad
                              },
                    opacity: 1 

@@ -208,7 +208,7 @@ function getScatter3DAt_heat(fname,datalist,xkey, ykey, zkey, heatkey, visibleli
                marker: {
                    color: mcolor,
                    size: 2,
-                   line: {color: "black", width: 1},
+//                   line: {color: "black", width: 1},
 //                   colorscale: 'Viridis',
 //                   colorscale: 'Rainbow',
                    colorscale: 'Greens',
@@ -219,7 +219,7 @@ function getScatter3DAt_heat(fname,datalist,xkey, ykey, zkey, heatkey, visibleli
                           title:heatkey,
                           xpad:heatxpad
                              },
-                   opacity: 0.6 
+                   opacity: 1 
                },
                type:"scatter3d" };
    if(slabel != null) {

@@ -40,6 +40,7 @@ defined.  They are used to alter the look and feel of the point cloud.
 | **title** | chars | plot title | title of the plot |
 | **heat** | chars | column label | column to be use as the intensity values to color the data point |
 | **heatOn** | chars | true/false | scatter plot with data points colored by corresponding intensity values from the 'heat' column |
+| **3dOn** | chars | true/false | make a single 3d scatter plot with multiple sets of data points |
 
 
 ## Examples
@@ -83,6 +84,23 @@ view.html?stepX=0.26&
           url=http://localhost/data/data2.csv&
           alias='second file'&
           color=red
+
+```
+
+```
+
+Plot a single 3d plot with multiple CSV datafiles
+
+```
+view.html?title='Title of the plot'
+          url=http://localhost/data/data1.csv&
+          alias='first one'&
+          color=green&
+          size=7&
+          url=http://localhost/data/data2.csv&
+          alias='second file'&
+          color=red&
+          3dOn=true
 
 ```
 

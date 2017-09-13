@@ -5,19 +5,27 @@ var using_button=false;
 
 // or could initiate a 'click' on
 // the plotsButton
-function dissmissPlots() {
-  if(using_button)
+function dismissPlots() {
+  if(using_button) {
     plotsClick_btn();
-  else plotsClick();
+    } else { 
+      plotsClick();
+  }
 }
 
 function removePlotsClick_btn()
 {
   var btn = document.getElementById('plots-button');
   if(btn)
-    btn.style.opacity =0;
+    btn.style.display="none";
 }
 
+function addPlotsClick_btn()
+{
+  var btn = document.getElementById('plots-button');
+  if(btn)
+    btn.style.display="";
+}
 
 function plotsClick_btn() {
   using_button=true;

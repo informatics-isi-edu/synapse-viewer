@@ -23,6 +23,8 @@ var  saveRangeX;
 var  saveRangeY;
 var  saveRangeZ;
 
+var saveSpan=[];
+
 // setup to be the last one that were used
 function setupInitValues(idx)
 {
@@ -184,6 +186,14 @@ var myProcessArg=function(kvp0, kvp1) {
              }
              break;
              }
+    case '3dOn':
+             {
+             var t=trimQ(kvp1);
+             if(t == 'true') {
+               threeDON=true;
+             }
+             break;
+             }
     case "runurl":
              {
              var furl=trimQ(kvp1);
@@ -323,6 +333,10 @@ function convert2micron(data, s) {
   var stepX=initStepX[t];
   var stepY=initStepY[t];
   var stepZ=initStepZ[t];
+
+  if(stepX == 1 && stepY == 1 && stepZ == 1)
+    return;
+
   for(var i=0; i<data.length; i++) {
     data[i]['X']= data[i]['X'] * stepX;
     data[i]['Y']= data[i]['Y'] * stepY;
@@ -330,7 +344,7 @@ function convert2micron(data, s) {
   }
 }
 
-function translate2Center(data) {
+function findCenter(data) {
   var xlist=data.map(function(k) { return k['X']; } );
   var _maxX=Math.max.apply(Math,xlist);
   var _minX=Math.min.apply(Math,xlist);
@@ -343,12 +357,22 @@ function translate2Center(data) {
   var _maxZ=Math.max.apply(Math,zlist);
   var _minZ=Math.min.apply(Math,zlist);
   var _spanZ=(_maxZ - _minZ)/2 + _minZ;
+  return [_spanX, _spanY, _spanZ];
+}
+
+function translate2Center(data) {
+  var c=findCenter(data);
+  var _spanX=c[0];
+  var _spanY=c[1];
+  var _spanZ=c[2];
   var cnt=data.length;
   for(var i=0; i<cnt; i++) {
     data[i]['X']= data[i]['X'] - _spanX;
     data[i]['Y']= data[i]['Y'] - _spanY;
     data[i]['Z']= data[i]['Z'] - _spanZ;
   }
+//  window.console.log("center spaning..",_spanX," ",_spanY," ",_spanZ);
+  saveSpan.push({X:_spanX, Y:_spanY, Z:_spanZ});
 }
 
 function getMyColor(i) {
@@ -357,8 +381,8 @@ function getMyColor(i) {
 
 function loadAndProcessCSVfromFiles(urls) {
   var nlist=[];
-  var cnt=urls.length;
-  for( var i=0; i < cnt; i++ ) {
+  var ucnt=urls.length;
+  for( var i=0; i < ucnt; i++ ) {
       var url=urls[i];
       var csv=ckExist(url);
       $.csv.toObjects(csv, {}, function(err, data) {
@@ -398,6 +422,7 @@ function loadAndProcessCSVfromFiles(urls) {
         translate2Center(data);
         initPlot_data.push(data);
       });
+
       var color=getDefaultColor(i);
       if(initColor.length > i && initColor[i]!=undefined) {
         color=initColor[i];
@@ -408,6 +433,38 @@ function loadAndProcessCSVfromFiles(urls) {
         fstub=initAlias[i];
       }
       nlist.push(fstub);
+  }
+
+// in case that this is multiplot and doing 3dOn
+// readjust all the initPlot_data
+  if(ucnt > 1 && threeDON) {
+// new center -- use first plot
+     var nc=saveSpan[0];
+     var newX=nc['X'];
+     var newY=nc['Y'];
+     var newZ=nc['Z'];
+//window.console.log("new center is..", newX, " ", newY," ",newZ);
+// adjust data
+     for(var j=1; j<ucnt; j++) {
+        var oc=saveSpan[j];
+        var oldX=oc['X'];
+        var oldY=oc['Y'];
+        var oldZ=oc['Z'];
+//window.console.log("old center is..",oldX, " ", oldY, " ", oldZ);
+        var deltaX=oldX-newX;
+        var deltaY=oldY-newY;
+        var deltaZ=oldZ-newZ;
+//window.console.log("delta is..",deltaX, " ", deltaY, " ", deltaZ);
+        var data=initPlot_data[j];
+        var dcnt=data.length;
+//window.console.log("number of data..",dcnt);
+        for(var k=0; k<dcnt; k++) {
+          data[k]['X']= data[k]['X'] + deltaX;
+          data[k]['Y']= data[k]['Y'] + deltaY;
+          data[k]['Z']= data[k]['Z'] + deltaZ;
+        }
+         
+     }
   }
 
   var mm=getMinMax(initPlot_data);

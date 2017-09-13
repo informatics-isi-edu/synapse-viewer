@@ -5,6 +5,7 @@
 // being used inside another window (i.e. Chaise), set enableEmbedded.
 
 var DEBUG=false; // enable one of animation/spin/pull-out
+var threeDON=false;
 var START_THREED=true; // threeD one start with enabled mode
 var HAS_SUBPLOTS=false; // see if subplots needs to be made or not
 var START_HEATMAP=false;  // see if it needs to start with heatmap
@@ -38,16 +39,19 @@ function setupPlotList(dlist) {
   nameOfData=dlist;
 
   if(moreThanOneData()) {
-    if(DEBUG) {
+// by default, don't show if more than
+// one data files initially, unless in debug mode
+    if(threeDON) { 
       START_THREED=true; 
-      } else { // by default, don't show if more than
-               // one data files initially
+      // enable the plots buttons
+      addPlotsClick_btn();
+      } else {
         HAS_SUBPLOTS=true;
         START_THREED=false; 
     }
   }
   // disable the heat/pullout mode
-  if(!DEBUG) {
+  if(!threeDON) {
     removePlotsClick_btn();
   }
 

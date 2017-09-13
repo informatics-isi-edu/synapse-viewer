@@ -384,6 +384,15 @@ window.console.log("addThreeD!!!!");
   }
 
   saveThreeD=plot;
+  if(useHeat(plot_idx)) {
+plot.on('plotly_hover',
+  function(eventdata){  
+    var infotext = eventdata.points.map(function(d){
+      var pdata=d;
+//      return (d.data.name+': XX= '+d.data.x+', YY= '+d.data.y);
+    });
+});
+  }
   return plot;
 }
 
@@ -417,6 +426,17 @@ function removePlotlyTrace(plot,target) {
       var update = { visible: false };
       Plotly.restyle(plot, update, [target]);
   }
+}
+
+// how many traces is visible in this plot
+function cntVisibleTraces(plot) {
+  var data=plot.data;
+  var cnt=0;
+  for(var i=0; i< data.length;i++) {
+    if(data[i].visible == true)
+      cnt++;
+  }
+  return cnt;
 }
 
 function relayoutPlotlyPlot(plot,update) {
@@ -477,6 +497,12 @@ function onTrace(plot_idx,data_idx) {
   if(plot_idx ==0) { // it is the threeD plot  
     var plot=saveThreeD;
     addPlotlyTrace(plot,data_idx);
+// special case, if all the traces got suppressed and the first
+// one got added back, the spinning state seems to got lost
+    var vcnt=cntVisibleTraces(plot);
+    if(spinning && (vcnt==1)) { // restart it
+      var r=spinIt();
+    }
     } else {
 // can not add traces on subplots
   }
@@ -776,10 +802,11 @@ function runSpin() {
   spinning = !spinning;
   var btn = document.getElementById('spin-button');
   if(spinning) {
-    var plot=saveThreeD; 
-    var layout = plot._fullLayout['scene'];
-    spinIt();
-    btn.style.color = 'grey';
+ //   var plot=saveThreeD; 
+ //   var layout = plot._fullLayout['scene'];
+      var r=spinIt();
+      if(r)
+        btn.style.color = 'grey';
     } else {
       btn.style.color = 'red';
   }
@@ -791,15 +818,20 @@ function spinIt() {
   var _y=plot.layout.scene.camera.eye.y; // use x as the 'zoom'
   var zoom=Math.sqrt(_x * _x + _y * _y);
 //window.console.log("zoom is", zoom);
-  rotate(plot,'scene', Math.PI/180, zoom);
+  var r=rotate(plot,'scene', Math.PI/180, zoom);
 //  rotate(plot, 'scene2', Math.PI / 180, zoom);
-  if(spinning) {
+  if(r && spinning) {
     requestAnimationFrame(spinIt);
+    return 1;
   }
+  return 0;
 }
 
 var _angle=0;
 function rotate(plot,id, delta, zoom) {
+  var pp= plot._fullLayout[id];
+  if(pp == undefined)
+    return 0;
   var scene = plot._fullLayout[id]._scene;
   var camera = scene.getCamera();
   var _x=Math.cos(_angle)*zoom;
@@ -813,4 +845,5 @@ function rotate(plot,id, delta, zoom) {
     } else {
       _angle=_angle+delta;
   }
+  return 1;
 }
